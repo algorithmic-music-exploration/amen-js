@@ -1,4 +1,4 @@
-// amem.js
+// amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest
 
 function initialize(context, jquery) {
@@ -12,12 +12,12 @@ function initialize(context, jquery) {
             $.getJSON(analysisURL, function(data) {
                 // need to add check-for-existance of both URLs here
                 track.analysis = data;
-                track.status = "complete";
-                remixer.remixTrack(track, trackURL, callback);
+                track.status = 'complete';
+                amen.prepareTrack(track, trackURL, callback);
             });
         },
 
-        remixTrack : function(track, trackURL, callback) {
+        prepareTrack : function(track, trackURL, callback) {
             if (track.status == 'complete') {
                 preprocessTrack(track);
                 fetchAudio(trackURL);
@@ -27,39 +27,38 @@ function initialize(context, jquery) {
 
             function fetchAudio(url) {
                 var request = new XMLHttpRequest();
-                trace("fetchAudio " + url);
+                trace('fetchAudio ' + url);
                 track.buffer = null;
-                request.open("GET", url, true);
-                request.responseType = "arraybuffer";
+                request.open('GET', url, true);
+                request.responseType = 'arraybuffer';
                 this.request = request;
 
                 request.onload = function() {
-                    trace('audio loaded');
-                     if (false) {
-                        track.buffer = context.createBuffer(request.response, false);
-                        track.status = 'ok'
-                    } else {
-                        context.decodeAudioData(request.response,
-                            function(buffer) {      // completed function
-                                track.buffer = buffer;
-                                track.status = 'ok';
-                                callback(track, 100);
-                            },
-                            function(e) { // error function
-                                track.status = 'error: loading audio'
-                                console.log('audio error', e);
-                            }
-                        );
-                    }
-                }
+                    // removed an if (false) here?
+                    trace('audio loading ...');
+                    context.decodeAudioData(request.response,
+                        function(buffer) {      // completed function
+                            track.buffer = buffer;
+                            track.status = 'ok';
+                            callback(track, 100);
+                        },
+                        function(e) { // error function
+                            track.status = 'error: loading audio';
+                            console.log('audio error', e);
+                        }
+                    );
+                };
+
                 request.onerror = function(e) {
-                    trace('error loading loaded');
-                    track.status = 'error: loading audio'
-                }
+                    trace('error loading loaded', e);
+                    track.status = 'error: loading audio';
+                };
+
                 request.onprogress = function(e) {
                     var percent = Math.round(e.loaded * 100 / e.total);
                     callback(track, percent);
-                }
+                };
+
                 request.send();
             }
 
@@ -73,9 +72,9 @@ function initialize(context, jquery) {
                     trace('preprocessTrack ' + type);
                     // This j might need to be a regular for loop ...
                     for (var j in track.analysis[type]) {
-                        var qlist = track.analysis[type]
-                        j = parseInt(j)
-                        var q = qlist[j]
+                        var qlist = track.analysis[type];
+                        j = parseInt(j);
+                        var q = qlist[j];
 
                         q.start = parseFloat(q.start);
                         q.duration = parseFloat(q.duration);
@@ -88,8 +87,8 @@ function initialize(context, jquery) {
                         for (var k = 0; k < q.pitches.length; k++) {
                             q.pitches[k] = parseFloat(q.pitches[k]);
                         }
-                        for (var k = 0; k < q.timbre.length; k++) {
-                            q.timbre[k] = parseFloat(q.timbre[k]);
+                        for (var m = 0; m < q.timbre.length; m++) {
+                            q.timbre[m] = parseFloat(q.timbre[m]);
                         }
 
                         q.track = track;
@@ -98,19 +97,19 @@ function initialize(context, jquery) {
                         if (j > 0) {
                             q.prev = qlist[j-1];
                         } else {
-                            q.prev = null
+                            q.prev = null;
                         }
 
                         if (j < qlist.length - 1) {
                             q.next = qlist[j+1];
                         } else {
-                            q.next = null
+                            q.next = null;
                         }
                     }
                 }
-                // we don't need "bars.beats" as  as much as Remix did, but it can be nice to have
+                // we don't need 'bars.beats' as  as much as Remix did, but it can be nice to have
                 // Let's log it as an issue, and then bring it back later on
-                // ISSUE:  Add support for "bar.beats", either thru json or via the old connectQuanta function
+                // ISSUE:  Add support for 'bar.beats', either thru json or via the old connectQuanta function
                 // Unsure if Infinite Juke uses fsegs, but we can restore them later
                 // ISSUE:  add support for filteredSegments, from old code
             }
@@ -119,9 +118,7 @@ function initialize(context, jquery) {
         getPlayer : function(effects) {
             var queueTime = 0;
             var audioGain = context.createGain();
-            var curAudioSource = null;
             var currentlyQueued = new Array();
-            var curQ = null;
             var onPlayCallback = null;
             var afterPlayCallback = null;
             var currentTriggers = new Array();
@@ -137,21 +134,28 @@ function initialize(context, jquery) {
 
             function queuePlay(when, q) {
                 audioGain.gain.value = 1;
+                var theTime = context.currentTime;
+                // why in heaven's name do I have three ways of playing?
+                // I am sure there was a good reason for this, but man
                 if (isAudioBuffer(q)) {
                     var audioSource = context.createBufferSource();
                     audioSource.buffer = q;
                     audioSource.connect(audioGain);
                     currentlyQueued.push(audioSource);
                     audioSource.start(when);
+
                     if (onPlayCallback != null) {
                         theTime = (when - context.currentTime) *  1000;
                         currentTriggers.push(setTimeout(onPlayCallback, theTime));
                     }
+
                     if (afterPlayCallback != null) {
                         theTime = (when - context.currentTime + parseFloat(q.duration)) *  1000;
                         currentTriggers.push(setTimeout(afterPlayCallback, theTime));
                     }
+
                     return when + parseFloat(q.duration);
+
                 } else if ($.isArray(q)) {
                     // Correct for load times
                     if (when == 0) {
@@ -162,20 +166,20 @@ function initialize(context, jquery) {
                     }
                     return when;
                 } else if (isQuantum(q)) {
-                    var audioSource = context.createBufferSource();
-                    audioSource.buffer = q.track.buffer;
-                    audioSource.connect(audioGain);
-                    q.audioSource = audioSource;
-                    currentlyQueued.push(audioSource);
-                    audioSource.start(when, q.start, q.duration);
+                    var audioQuantumSource = context.createBufferSource();
+                    audioQuantumSource.buffer = q.track.buffer;
+                    audioQuantumSource.connect(audioGain);
+                    q.audioQuantumSource = audioQuantumSource;
+                    currentlyQueued.push(audioQuantumSource);
+                    audioQuantumSource.start(when, q.start, q.duration);
 
                     // I need to clean up all these ifs
-                    if ("syncBuffer" in q) {
-                        var audioSource = context.createBufferSource();
-                        audioSource.buffer = q.syncBuffer;
-                        audioSource.connect(audioGain);
-                        currentlyQueued.push(audioSource);
-                        audioSource.start(when);
+                    if ('syncBuffer' in q) {
+                        var audioSyncSource = context.createBufferSource();
+                        audioSyncSource.buffer = q.syncBuffer;
+                        audioSyncSource.connect(audioGain);
+                        currentlyQueued.push(audioSyncSource);
+                        audioSyncSource.start(when);
                     }
 
                     if (onPlayCallback != null) {
@@ -192,7 +196,7 @@ function initialize(context, jquery) {
                     return (when + parseFloat(q.duration));
                 }
                 else {
-                    error("can't play " + q);
+                    error('cannot play ' + q);
                     return when;
                 }
             }
@@ -235,8 +239,8 @@ function initialize(context, jquery) {
                     currentlyQueued = new Array();
 
                     if (currentTriggers.length > 0) {
-                        for (var i = 0; i < currentTriggers.length; i++) {
-                            clearTimeout(currentTriggers[i])
+                        for (var j = 0; j < currentTriggers.length; j++) {
+                            clearTimeout(currentTriggers[j]);
                         }
                         currentTriggers = new Array();
                     }
@@ -245,11 +249,10 @@ function initialize(context, jquery) {
                 curTime: function() {
                     return context.currentTime;
                 },
-            }
+            }; // end player
+
             return player;
         },
-
-
         // ISSUE:  Bring back saveRemixLocally - probably a better way to do it that 5 years ago?
         // Or, put it in a seperate thing!
     };
@@ -267,12 +270,11 @@ function initialize(context, jquery) {
     }
 
     function trace(text) {
-        if (false) {
-            console.log(text);
-        }
+        console.log(text);
     }
     return remixer;
 }
 
 // ISSUE:  There's lots of stuff that Infinite Juke uses that should not be in amen.js
 // I should bring it back and put it somewhere - maybe amen.util?  
+// Gonna need some wider js packaging stuff too, ho ho ho
