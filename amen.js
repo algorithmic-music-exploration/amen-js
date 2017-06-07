@@ -1,7 +1,7 @@
 // amen.js
-// Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest
+// Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
 
-function initialize(context, jquery) {
+function initializeAmen(context, jquery) {
     // Can we do this without jquery?
     var $ = jquery;
     $.ajaxSetup({ cache: false });
@@ -11,7 +11,7 @@ function initialize(context, jquery) {
             var track = new Object();
             $.getJSON(analysisURL, function(data) {
                 // need to add check-for-existance of both URLs here
-                track.analysis = data;
+                track.analysis = $.parseJSON(data);
                 track.status = 'complete';
                 amen.prepareTrack(track, trackURL, callback);
             });
@@ -27,7 +27,7 @@ function initialize(context, jquery) {
 
             function fetchAudio(url) {
                 var request = new XMLHttpRequest();
-                trace('fetchAudio ' + url);
+                trace('fetching audio ' + url);
                 track.buffer = null;
                 request.open('GET', url, true);
                 request.responseType = 'arraybuffer';
@@ -272,7 +272,8 @@ function initialize(context, jquery) {
     function trace(text) {
         console.log(text);
     }
-    return remixer;
+
+    return amen;
 }
 
 // ISSUE:  There's lots of stuff that Infinite Juke uses that should not be in amen.js
