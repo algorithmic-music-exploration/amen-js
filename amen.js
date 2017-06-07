@@ -3,6 +3,7 @@
 
 function initializeAmen(context, jquery) {
     // Can we do this without jquery?
+    // oh wow, need to make all of this speak Promises
     var $ = jquery;
     $.ajaxSetup({ cache: false });
 
