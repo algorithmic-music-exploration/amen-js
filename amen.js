@@ -1,21 +1,33 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
 
-function initializeAmen(context, jquery) {
+function initializeAmen(context) {
     // Can we do this without jquery?
     // oh wow, need to make all of this speak Promises
-    var $ = jquery;
-    $.ajaxSetup({ cache: false });
 
     var amen = {
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
-            $.getJSON(analysisURL, function(data) {
-                // need to add check-for-existance of both URLs here
-                track.analysis = $.parseJSON(data);
-                track.status = 'complete';
-                amen.prepareTrack(track, trackURL, callback);
-            });
+
+            var request = new XMLHttpRequest();
+            request.open('GET', analysisURL, true);
+            request.onload = function() {
+                if (request.status >= 200 && request.status < 400) {
+                    // Success!
+                    track.analysis = JSON.parse(request.responseText);
+                    // TODO - figure out why our JSON is double-encoded?
+                    track.analysis = JSON.parse(track.analysis);
+                    track.status = 'complete';
+                    amen.prepareTrack(track, trackURL, callback);
+                } else {
+                    // We reached our target server, but it returned an error
+                }
+            };
+            request.onerror = function() {
+                // There was a connection error of some sort
+            };
+
+            request.send();
         },
 
         prepareTrack : function(track, trackURL, callback) {
@@ -35,7 +47,6 @@ function initializeAmen(context, jquery) {
                 this.request = request;
 
                 request.onload = function() {
-                    // removed an if (false) here?
                     trace('audio loading ...');
                     context.decodeAudioData(request.response,
                         function(buffer) {      // completed function
@@ -157,7 +168,7 @@ function initializeAmen(context, jquery) {
 
                     return when + parseFloat(q.duration);
 
-                } else if ($.isArray(q)) {
+                } else if (Array.isArray(q)) {
                     // Correct for load times
                     if (when == 0) {
                         when = context.currentTime;
