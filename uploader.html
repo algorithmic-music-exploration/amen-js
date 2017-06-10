@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	<title>Amen Test</title>
+</head>
+
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="amen.js"></script>
+<script type="text/javascript">
+
+var context = new AudioContext();
+var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3";
+var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
+
+var amen = initializeAmen(context, $);
+var player = amen.getPlayer();
+
+amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
+  console.log(percent);
+  if (t.status = "ok" && percent == 100) {
+    console.log("track has loaded");
+    var out = []
+    out.push(t.analysis.beats[4]);
+    out.push(t.analysis.beats[4]);
+    out.push(t.analysis.beats[4]);
+    out.push(t.analysis.beats[4]);
+    out.push(t.analysis.beats[0]);
+    out.push(t.analysis.beats[0]);
+    player.play(0, out);
+  }
+});
+
+var responseHandler = function(data) {
+  console.log(data);
+}
+
+var uploadFile = function() {
+  var input = $("input")[0];
+	var file = input.files[0];
+	var fd = new FormData();
+	fd.append('file', file);
+	console.log("about to upload", fd);
+
+	var xhr = new XMLHttpRequest();
+	var url = 'http://tide-pool.link/amen-test';
+	xhr.open('POST', url, true);
+	xhr.onreadystatechange = responseHandler;
+	xhr.send(fd);
+	console.log("req sent!");
+}
+
+</script>
+
+<form enctype="multipart/form-data" action="/upload/image" method="post">
+    <input id="file" type="file" />
+</form>
+<button onclick="uploadFile()">Upload!</button>
+
+</body>
+</html>
