@@ -10,30 +10,53 @@
 <script type="text/javascript" src="amen.js"></script>
 <script type="text/javascript">
 
-var context = new AudioContext();
-var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3";
-var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
+var doRemix = function(urls) {
+  var context = new AudioContext();
+  var trackUrl = urls.audio;
+  var analysisUrl = urls.analysis;
 
-var amen = initializeAmen(context, $);
-var player = amen.getPlayer();
+  var amen = initializeAmen(context, $);
+  var player = amen.getPlayer();
 
-amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
-  console.log(percent);
-  if (t.status = "ok" && percent == 100) {
-    console.log("track has loaded");
-    var out = []
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[0]);
-    out.push(t.analysis.beats[0]);
-    player.play(0, out);
-  }
-});
+  amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
+    console.log(percent);
+    if (t.status = "ok" && percent == 100) {
+      console.log("track has loaded");
+      var out = []
+      out.push(t.analysis.beats[4]);
+      out.push(t.analysis.beats[4]);
+      out.push(t.analysis.beats[4]);
+      out.push(t.analysis.beats[4]);
+      out.push(t.analysis.beats[0]);
+      out.push(t.analysis.beats[0]);
+      player.play(0, out);
+    }
+  });
+}
+ 
+var pollUrl = function(url, fn, data, time){
+  $.ajax({
+    url : url,
+    type : 'HEAD',
+    success : function(){
+      fn(data);
+      console.log("200!");
+    },
+    error : function(){
+      console.log("fail, waiting for ", time);
+      setTimeout(function() {
+        pollUrl(url, fn, data, time + time / 2);
+      }, time);
+    }
+  });
+}
 
-var responseHandler = function(data) {
-  console.log(data);
+var responseHandler = function(res) {
+  if (res.target.readyState === 4) {
+    var urls = $.parseJSON(res.target.response);
+    console.log(urls);
+    pollUrl(urls.audio, doRemix, urls, 200);
+  } 
 }
 
 var uploadFile = function() {
