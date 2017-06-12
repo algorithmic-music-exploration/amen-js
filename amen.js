@@ -1,10 +1,8 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
-
-function initializeAmen(context) {
-    // Can we do this without jquery?
+// Need to handle proper packaging for browser stuff, too!
+var initializeAmen = function(context) {
     // oh wow, need to make all of this speak Promises
-
     var amen = {
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
@@ -286,8 +284,10 @@ function initializeAmen(context) {
     }
 
     return amen;
-}
+};
 
 // ISSUE:  There's lots of stuff that Infinite Juke uses that should not be in amen.js
 // I should bring it back and put it somewhere - maybe amen.util?  
 // Gonna need some wider js packaging stuff too, ho ho ho
+
+exports.amen = initializeAmen;
