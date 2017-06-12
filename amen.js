@@ -291,4 +291,4 @@ var initializeAmen = function(context) {
 // I should bring it back and put it somewhere - maybe amen.util?  
 // Gonna need some wider js packaging stuff too, ho ho ho
 
-module.exports = initializeAmen;
+exports.amen = initializeAmen;
