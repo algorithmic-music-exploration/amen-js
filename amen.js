@@ -1,9 +1,8 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
-
+// Need to handle proper packaging for browser stuff, too!
 var initializeAmen = function(context) {
     // oh wow, need to make all of this speak Promises
-
     var amen = {
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
