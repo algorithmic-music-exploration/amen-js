@@ -9,13 +9,11 @@
     <link rel="stylesheet" href="files/canonizer_styles.css" type="text/css" media="screen">
     <link rel="stylesheet" href="files/jquery-ui.css" type="text/css" media="screen">
     <link href="files/css.css" rel="stylesheet" type="text/css">
-    <title> The Eternal Jukebox </title>
 
-    <meta property="og:title" content="The Eternal Jukebox"/>
+    <title>The Jukebox </title>
+    <meta property="og:title" content="The Jukebox"/>
     <meta property="og:description" content="For when your favorite song just isn't long enough"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:url" content="https://eternal.abimon.org/jukebox_go.html?id=4uLU6hMCjMI75M1A2tKUQC.html"/>
-    <meta property="og:image" content="https://eternal.abimon.org/files/eternal.png"/>
 </head>
 
 <body>
@@ -30,10 +28,10 @@
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li class="dropdown">
-                        <a id='show-search' class="brand">The Eternal Jukebox</a>
+                        <a id='show-search' class="brand">The Jukebox</a>
                         <div class="dropdown-content">
-                            <a href="jukebox_index.html">The Eternal Jukebox</a>
-                            <a href="retro_index.html">The Eternal Jukebox (Retro)</a>
+                            <a href="jukebox_index.html">The Jukebox</a>
+                            <a href="retro_index.html">The Jukebox (Retro)</a>
                         </div>
                     </li>
                     <li class="active"><a id='show-main' href="jukebox_index.html">Main</a></li>
@@ -362,7 +360,7 @@
 
     function trackReady(t) {
         t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
-        document.title = 'Eternal Jukebox for ' + t.fixedTitle;
+        document.title = 'Jukebox for ' + t.fixedTitle;
         $("#song-title").text(t.fixedTitle);
         $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
         jukeboxData.minLongBranch = track.analysis.beats.length / 5;
