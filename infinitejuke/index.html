@@ -1457,45 +1457,6 @@
         }
     }
 
-    function getShareURL(callback) {
-        var q = document.URL.split('?')[1];
-
-        $.ajax({
-            url: "/api/shrink",
-            dataType: "json",
-            type: "POST",
-            data: q === undefined ? "type=jukebox" : "type=jukebox&" + q,
-            success: function (data) {
-                return callback(data["id"]);
-            },
-            error: function (xhr, textStatus, error) {
-                console.log("Error: " + error);
-                return "NOT-VALID";
-            }
-        });
-    }
-
-    function checkIfStarred() {
-        getShareURL(function (id) {
-            $.ajax({
-                url: "/api/profile/stars",
-                dataType: "json",
-                type: "GET",
-                success: function (data) {
-                    for (var i = 0; i < data.length; i++) {
-                        if (data[i] === id) {
-                            $("#star").text("Unstar");
-                            break;
-                        }
-                    }
-                },
-                error: function (xhr, textStatus, error) {
-                    console.log("Error: " + error)
-                }
-            });
-        });
-    }
-
     function init() {
         document.ondblclick = function DoubleClick(event) {
             event.preventDefault();
@@ -1509,7 +1470,6 @@
         paper = Raphael("tiles", W, H);
 
         $("#error").hide();
-
 
         $("#load").click(
             function () {
@@ -1560,43 +1520,6 @@
                     controls.dialog('open');
                 jukeboxData.tuningOpen = !jukeboxData.tuningOpen;
                 ga_track('main', 'tune', '');
-            }
-        );
-
-        $("#star").click(
-            function () {
-                getShareURL(function (shortID) {
-                    $.ajax({
-                        url: "/api/profile/stars/" + shortID,
-                        type: $("#star").text() === "Star" ? "PUT" : "DELETE",
-                        headers: {
-                            "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
-                        },
-                        success: function (data) {
-                            if ($("#star").text() === "Star") {
-                                $("#info").text("Successfully starred!");
-                                $("#star").text("Unstar");
-                            } else {
-                                $("#info").text("Successfully unstarred!");
-                                $("#star").text("Star");
-                            }
-                        },
-                        error: function (xhr, textStatus, error) {
-                            if (error === "Unauthorized")
-                                $("#info").text("An error occurred while starring: You're not logged in!");
-                            else
-                                $("#info").text("An error occurred while starring: " + error + "!");
-                        }
-                    });
-                });
-            }
-        );
-
-        $("#short-url").click(
-            function () {
-                getShareURL(function (id) {
-                    prompt("Copy the URL below and press 'Enter' to automatically close this prompt", window.location.origin + "/api/expand/" + id + "/redirect")
-                })
             }
         );
 
@@ -1909,7 +1832,6 @@
             remixer = createJRemixer(context, $);
             player = remixer.getPlayer();
             processParams();
-            checkIfStarred();
         }
     }
 
