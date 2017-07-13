@@ -40,14 +40,19 @@
         <div id="details">
             <a href="" target="_blank" id="song-url"><span id="song-title"> </span></a>
             <br>
-            <span id="button-panel">
+            <span id="play-button-panel">
                 <button class="btn btn-small" id="go">Play</button>
                 <button class="btn btn-small" id="tune">Tune</button>
             </span>
-            <form enctype="multipart/form-data" action="/upload/image" method="post">
-                <input id="file" type="file" />
-            </form>
-            <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
+
+
+            <div id="upload">
+              <form enctype="multipart/form-data" action="/upload/image" method="post">
+                  <input id="file" type="file" />
+              </form>
+              <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
+            </div>
+
         </div>
 
         <div id="tiles"></div>
@@ -69,6 +74,10 @@
     // dash during Music Hack Day Boston 2012, and has
     // quite a bit of hackage of the bad kind in it.
 
+    // Tacky global state holder.
+    // This can be in 'upload', 'uploading', 'playback'
+    var state = 'upload';
+
     var remixer;
     var player;
     var driver;
@@ -87,7 +96,6 @@
     var highlightColor = "#0000ff";
     var jumpHighlightColor = "#00ff22";
     var selectColor = "#ff0000";
-    var uploadingAllowed = false;
     var debugMode = true;
     var fastMode = false;
 
@@ -193,6 +201,55 @@
         player = remixer.getPlayer();
     }
 
+
+
+    // Chain of functions for uploading:  upload, poll for analysis, do the work.
+
+    var uploadFile = function() {
+      var input = $("input")[0];
+      var file = input.files[0];
+      var fd = new FormData();
+      fd.append('file', file);
+      console.log("about to upload", fd);
+
+      var xhr = new XMLHttpRequest();
+      var url = 'http://tide-pool.link/amen-test';
+      xhr.open('POST', url, true);
+      xhr.onreadystatechange = responseHandler;
+      xhr.send(fd);
+      console.log("req sent!");
+    }
+
+    var responseHandler = function(res) {
+      if (res.target.readyState === 4) {
+        var urls = $.parseJSON(res.target.response);
+        console.log(urls);
+        pollUrl(urls.audio, doRemix, urls, 200);
+      } 
+    }
+
+  var pollUrl = function(url, fn, data, time){
+    $.ajax({
+      url : url,
+      type : 'HEAD',
+      success : function(){
+        fn(data);
+        console.log("200!");
+      },
+      error : function(){
+        console.log("fail, waiting for ", time);
+        setTimeout(function() {
+          pollUrl(url, fn, data, time + time / 2);
+        }, time);
+      }
+    });
+
+    function doRemix() {
+      console.log("do the remix!");
+    }
+
+
+    // Tile functions
     function createTiles(qtype) {
         return createTileCircle(qtype, 250);
     }
@@ -233,7 +290,7 @@
         }
 
         // now connect every tile to its neighbors
-
+        // (?? was there something here ??)
         // a horrible hack until I figure out
         // geometry
         var roffset = width / 2;
@@ -318,6 +375,8 @@
     }
 
 
+
+    // Titles
     function extractTitle(url) {
         var lastSlash = url.lastIndexOf('/');
         if (lastSlash >= 0 && lastSlash < url.length - 1) {
@@ -343,25 +402,6 @@
         return title;
     }
 
-
-    function trackReady(t) {
-        t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
-        document.title = 'Jukebox for ' + t.fixedTitle;
-        $("#song-title").text(t.fixedTitle);
-        $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
-        jukeboxData.minLongBranch = track.analysis.beats.length / 5;
-    }
-
-
-    function readyToPlay(t) {
-        setDisplayMode(true);
-        driver = Driver(player);
-        info("Ready!");
-        normalizeColor();
-        trackReady(t);
-        drawVisualization();
-    }
-
     function drawVisualization() {
         if (track) {
             if (jukeboxData.currentThreshold == 0) {
@@ -373,7 +413,25 @@
         }
     }
 
+    // track readyness
+    function trackReady(t) {
+        t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
+        document.title = 'Jukebox for ' + t.fixedTitle;
+        $("#song-title").text(t.fixedTitle);
+        $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
+        jukeboxData.minLongBranch = track.analysis.beats.length / 5;
+    }
 
+    function readyToPlay(t) {
+        setDisplayMode(true);
+        driver = Driver(player);
+        info("Ready!");
+        normalizeColor();
+        trackReady(t);
+        drawVisualization();
+    }
+
+    // Here!  This needs to be replaced with amen.loadTrack, instead of remixer.remixTrack
     function gotTheAnalysis(profile) {
         info("Loading track ...");
         remixer.remixTrack(profile, jukeboxData, function (state, t, percent) {
@@ -403,41 +461,6 @@
         });
     }
 
-
-    function listSong(r) {
-        var title = getTitle(r.title, r.artist, null);
-        var item = null;
-        if (title) {
-            var item = $('<li>').append(title);
-
-            item.attr('class', 'song-link');
-            item.click(function () {
-                showPlotPage(r.id);
-            });
-        }
-        return item;
-    }
-
-    function listSongAsAnchor(r) {
-        var title = getTitle(r.title, r.artist, r.url);
-        var item = $('<li>').html('<a href="index.html?id=' + r.id + '">' + title + '</a>');
-        return item;
-    }
-
-    function listTracks(active, tracks) {
-        $('#song-div').show();
-        $('#song-list').empty();
-        $('.sel-list').removeClass('activated');
-        $(active).addClass('activated');
-        for (var i = 0; i < tracks.length; i++) {
-            var s = tracks[i];
-            var item = listSong(s);
-            if (item) {
-                $('#song-list').append(listSong(s));
-            }
-        }
-    }
-
     function analyzeAudio(audio, tag, callback) {
         var url = 'qanalyze';
         $.getJSON(url, {url: audio, tag: tag}, function (data) {
@@ -452,52 +475,14 @@
         });
     }
 
-    // first see if it is in in S3 bucket, and if not, get the analysis from
-    // the labs server
 
-    function noCache() {
-        return {"noCache": now()}
-    }
-
-    function fetchAnalysis(id) {
-        var url = '/api/info/' + id;
-        info('Fetching the analysis');
-        $.getJSON(url, function (data) {
-            gotTheAnalysis(data);
-        })
-            .error(function () {
-                info("Sorry, can't find info for that track");
-            });
-    }
-
-    function get_status(data) {
-        if (data.response.status.code === 0) {
-            return data.response.track.status;
-        } else {
-            return 'error';
-        }
-    }
-
-
-    function fetchSignature() {
-        var url = 'policy'
-        $.getJSON(url, {}, function (data) {
-            policy = data.policy;
-            signature = data.signature;
-            $('#f-policy').val(data.policy);
-            $('#f-signature').val(data.signature);
-            $('#f-key').val(data.key);
-        });
-    }
-
-
+    // More heavy NN and geometry functions
     function calculateDim(numTiles, totalWidth, totalHeight) {
         var area = totalWidth * totalHeight;
         var tArea = area / (1.2 * numTiles);
         var dim = Math.floor(Math.sqrt(tArea));
         return dim;
     }
-
 
     var timbreWeight = 1, pitchWeight = 10,
         loudStartWeight = 1, loudMaxWeight = 1,
@@ -583,6 +568,15 @@
         }
     }
 
+    function undeleteAllEdges() {
+        jukeboxData.deletedEdgeCount = 0;
+        for (var i = 0; i < jukeboxData.allEdges.length; i++) {
+            var edge = jukeboxData.allEdges[i];
+            if (edge.deleted) {
+                edge.deleted = false;
+            }
+        }
+    }
 
     function calculateNearestNeighbors(type, threshold) {
         precalculateNearestNeighbors(type, jukeboxData.maxBranches, jukeboxData.maxBranchThreshold);
@@ -592,6 +586,7 @@
     }
 
 
+    // Tuning functions
     function resetTuning() {
         undeleteAllEdges();
 
@@ -612,18 +607,6 @@
 
         drawVisualization();
     }
-
-
-    function undeleteAllEdges() {
-        jukeboxData.deletedEdgeCount = 0;
-        for (var i = 0; i < jukeboxData.allEdges.length; i++) {
-            var edge = jukeboxData.allEdges[i];
-            if (edge.deleted) {
-                edge.deleted = false;
-            }
-        }
-    }
-
 
     function setTunedURL() {
         if (track) {
@@ -685,12 +668,13 @@
         }
     }
 
-
     function now() {
         return new Date().getTime();
     }
 
 
+
+    // Serious branch stuff!!
     // we want to find the best, long backwards branch
     // and ensure that it is included in the graph to
     // avoid short branching songs like:
@@ -830,7 +814,6 @@
     function clamp(val, min, max) {
         return val < min ? min : val > max ? max : val;
     }
-
 
     function findBestLastBeat(type) {
         var reachThreshold = 50;
@@ -1061,6 +1044,7 @@
     }
 
 
+    // Math
     function euclidean_distance(v1, v2) {
         var sum = 0;
 
@@ -1426,23 +1410,6 @@
         }
     }
 
-    function searchForTrack() {
-        console.log("search for a track");
-        var q = $("#search-text").val();
-        console.log(q);
-
-        if (q.length > 0) {
-            var url = 'search'
-            $.getJSON(url, {q: q, results: 30}, function (data) {
-                console.log(data);
-                for (var i = 0; i < data.length; i++) {
-                    data[i].id = data[i].id;
-                }
-                listTracks('#search-list', data);
-            });
-        }
-    }
-
     function init() {
         document.ondblclick = function DoubleClick(event) {
             event.preventDefault();
@@ -1456,17 +1423,6 @@
         paper = Raphael("tiles", W, H);
 
         $("#error").hide();
-
-        $("#load").click(
-            function () {
-                ga_track('main', 'load', '');
-                if (!uploadingAllowed) {
-                    alert("Sorry, uploading is temporarily disabled, while we are under heavy load");
-                } else {
-                    location.href = "loader.html";
-                }
-            }
-        );
 
         $("#go").click(
             function () {
@@ -1654,27 +1610,6 @@
                 setTunedURL();
                 window.location.reload(true);
             }
-        });
-
-        $("#audio-upload").change(function () {
-            $.ajax({
-                url: "/api/upload/audio",
-                type: "POST",
-                data: new FormData($('#audio-upload-form')[0]),
-                processData: false,
-                contentType: false,
-                headers: {
-                    "X-XSRF-TOKEN": document.cookie.substring(document.cookie.indexOf("XSRF-TOKEN")).split(";")[0].split("=").slice(1).join("=")
-                },
-                success: function (data) {
-                    jukeboxData.audioURL = data;
-                    setTunedURL();
-                    window.location.reload(true);
-                },
-                error: function (xhr, textStatus, error) {
-                    console.log("Error: " + error);
-                }
-            });
         });
 
         $("#disable-keys").change(
@@ -2256,35 +2191,6 @@
         return url.indexOf('&') > 0;
     }
 
-    function tweetSetup(t) {
-        $(".twitter-share-button").remove();
-        var tweet = $('<a>')
-            .attr('href', "https://twitter.com/share")
-            .attr('id', "tweet")
-            .attr('class', "twitter-share-button")
-            .attr('data-lang', "en")
-            .attr('data-count', "none")
-            .text('Tweet');
-
-        $("#tweet-span").prepend(tweet);
-        if (t) {
-            var tuned = '';
-            if (isTuned(document.URL)) {
-                tuned = 'Tuned ';
-            }
-            tweet.attr('data-text', tuned + "#EternalJukebox of " + t.fixedTitle);
-            tweet.attr('data-url', document.URL);
-        }
-        // twitter can be troublesome. If it is not there, don't bother loading it
-        if ('twttr' in window) {
-            twttr.widgets.load();
-        }
-    }
-
-    function ga_track(page, action, id) {
-        _gaq.push(['_trackEvent', page, action, id]);
-    }
-
     window.onload = init;
 
 </script>
@@ -2352,9 +2258,6 @@
                                                                                            type="checkbox"></div>
             <div class="l-cb" id="l-disable-keys"> Disable Keypresses: <input id="disable-keys" type="checkbox"></div>
             <div class="l-cb" id="l-audio-url">Audio URL: <input id="audio-url" type="url"></div>
-            <br>
-            <div class="l-cb" id="l-audio-upload"><form id="audio-upload-form"><input id="audio-upload" type="file" name="song_upload"
-                                                         accept="audio/*"></form></div>
             <br>
             <hr>
             <div id="tune-info">
