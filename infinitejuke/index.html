@@ -31,7 +31,7 @@
 </div>
 
 <div id='info-div'>
-    <span id='info'> </span>
+    <span id='info'></span>
 </div>
 
 <div id='error'></div>
@@ -141,9 +141,7 @@
         disableKeys: false
     };
 
-
     // From Crockford, Douglas (2008-12-17). JavaScript: The Good Parts (Kindle Locations 734-736). Yahoo Press.
-
     if (typeof Object.create !== 'function') {
         Object.create = function (o) {
             var F = function () {
@@ -152,7 +150,6 @@
             return new F();
         };
     }
-
 
     function info(s) {
         $("#info").text(s);
@@ -2379,8 +2376,6 @@
         </div>
     </div>
 </div>
-<iframe id="rufous-sandbox" scrolling="no" allowtransparency="true" allowfullscreen="true"
-        style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: medium none;"
-        title="Twitter analytics iframe" frameborder="0"></iframe>
+
 </body>
 </html>
