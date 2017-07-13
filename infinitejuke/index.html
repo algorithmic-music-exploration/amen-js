@@ -19,24 +19,10 @@
 <div id="wrap" class="navbar navbar-inverse">
     <div class="navbar-inner">
         <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
                     <li class="dropdown">
                         <a id='show-search' class="brand">The Jukebox</a>
-                        <div class="dropdown-content">
-                            <a href="jukebox_index.html">The Jukebox</a>
-                            <a href="retro_index.html">The Jukebox (Retro)</a>
-                        </div>
-                    </li>
-                    <li class="active"><a id='show-main' href="jukebox_index.html">Main</a></li>
-                    <li><a id='show-loader' href="jukebox_search.html">Pick a song</a></li>
-                    <li><a id='show-about' href="http://musicmachinery.com/2012/11/12/the-infinite-jukebox/">About</a></li>
-                    <li><a id='show-faq' href="faq.html">FAQ</a></li>
                     </li>
                 </ul>
             </div>
@@ -58,6 +44,10 @@
                 <button class="btn btn-small" id="go">Play</button>
                 <button class="btn btn-small" id="tune">Tune</button>
             </span>
+            <form enctype="multipart/form-data" action="/upload/image" method="post">
+                <input id="file" type="file" />
+            </form>
+            <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
         </div>
 
         <div id="tiles"></div>
