@@ -3,13 +3,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
     <script src="raphael-min.js" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript" src="../amen.js"></script>
     <script type="text/javascript" src="jremix.js"></script>
     <script type="text/javascript" src="watch.js"></script>
+
     <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen">
     <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" media="screen">
     <link href="css/juke.css" rel="stylesheet" type="text/css" media="screen">
 
-    <title>The Jukebox </title>
+    <title>The Jukebox</title>
     <meta property="og:title" content="The Jukebox"/>
     <meta property="og:description" content="For when your favorite song just isn't long enough"/>
     <meta property="og:type" content="website"/>
@@ -50,7 +53,8 @@
               <form enctype="multipart/form-data" action="/upload/image" method="post">
                   <input id="file" type="file" />
               </form>
-              <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
+              <!-- this will become uploadFile, soon! -->
+              <button class="btn btn-small" id="upload" onclick="doRemix()">Upload</button>
             </div>
 
         </div>
@@ -163,7 +167,6 @@
         $("#info").text(s);
     }
 
-
     function error(s) {
         if (s.length == 0) {
             $("#error").hide();
@@ -195,17 +198,14 @@
         $(".rotate").hide();
     }
 
-
     function stop() {
         player.stop();
         player = remixer.getPlayer();
     }
 
-
-
     // Chain of functions for uploading:  upload, poll for analysis, do the work.
-
-    var uploadFile = function() {
+    // This stuff is by Thor!
+    function uploadFile() {
       var input = $("input")[0];
       var file = input.files[0];
       var fd = new FormData();
@@ -243,11 +243,24 @@
         }, time);
       }
     });
+  }
 
-    function doRemix() {
-      console.log("do the remix!");
-    }
+  function doRemix() {
+    var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3"
+    var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
 
+    console.log("do the remix!");
+    var context = getAudioContext();
+    var amen = initializeAmen(context, $);
+    player = amen.getPlayer();
+
+    amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
+      console.log(percent);
+      if (t.status = "ok" && percent == 100) {
+        console.log("track has loaded");
+      }
+    });
+  }
 
     // Tile functions
     function createTiles(qtype) {
@@ -1411,6 +1424,7 @@
     }
 
     function init() {
+        console.log("does this run?");
         document.ondblclick = function DoubleClick(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -1435,13 +1449,6 @@
                 }
             }
         );
-
-        $("#search").click(searchForTrack);
-        $("#search-text").keyup(function (e) {
-            if (e.keyCode === 13) {
-                searchForTrack();
-            }
-        });
 
         $("#new").click(
             function () {
@@ -1754,7 +1761,7 @@
             player = remixer.getPlayer();
             processParams();
         }
-    }
+    } // end window.init monster
 
     function getAudioContext() {
         var context = null;
@@ -2192,7 +2199,6 @@
     }
 
     window.onload = init;
-
 </script>
 
 <div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable"
