@@ -5,6 +5,7 @@
     <script src="raphael-min.js" type="text/javascript" charset="utf-8"></script>
 
     <script type="text/javascript" src="../amen.js"></script>
+    <script type="text/javascript" src="../amen-to-remix.js"></script>
     <script type="text/javascript" src="jremix.js"></script>
     <script type="text/javascript" src="watch.js"></script>
 
@@ -255,10 +256,15 @@
     player = amen.getPlayer();
 
     amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
+
       console.log(percent);
       if (t.status = "ok" && percent == 100) {
         console.log("track has loaded");
+        track = t;
+        track = amenToRemix(track);
+        readyToPlay(t);
       }
+
     });
   }
 
@@ -428,10 +434,8 @@
 
     // track readyness
     function trackReady(t) {
-        t.fixedTitle = getTitle(t.info.title, t.info.artist, t.info.url);
+        // TODO get title from filename
         document.title = 'Jukebox for ' + t.fixedTitle;
-        $("#song-title").text(t.fixedTitle);
-        $("#song-url").attr("href", "https://open.spotify.com/track/" + t.info.id);
         jukeboxData.minLongBranch = track.analysis.beats.length / 5;
     }
 
@@ -631,7 +635,7 @@
                 lb = '&lb=0';
             }
 
-            var p = '?id=' + track.info.id + edges + lb;
+            var p = '?id=' + edges + lb;
 
             if (jukeboxData.justBackwards) {
                 p += '&jb=1'
@@ -677,7 +681,6 @@
             }
 
             history.replaceState({}, document.title, p);
-            tweetSetup(track);
         }
     }
 
@@ -2165,14 +2168,14 @@
             info("analyzing audio");
             setDisplayMode(true);
             $("#select-track").hide();
-                analyzeAudio(url, 'tag',
-                function (data) {
-                    if (data.status === 'done') {
-                        showPlotPage(data.id);
-                    } else {
-                        info("Trouble analyzing that track " + data.message);
-                    }
+            analyzeAudio(url, 'tag',
+              function (data) {
+                if (data.status === 'done') {
+                  showPlotPage(data.id);
+                } else {
+                  info("Trouble analyzing that track " + data.message);
                 }
+              }
             );
         }
         else {
