@@ -8,6 +8,7 @@
     <script type="text/javascript" src="../amen-to-remix.js"></script>
     <script type="text/javascript" src="jremix.js"></script>
     <script type="text/javascript" src="watch.js"></script>
+    <script type="text/javascript" src="underscore-min.js"></script>
 
     <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" media="screen">
     <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" media="screen">
@@ -247,8 +248,8 @@
   }
 
   function doRemix() {
-    var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3"
-    var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
+    var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3"
+    var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3.analysis.json";
 
     console.log("do the remix!");
     var context = getAudioContext();
@@ -1389,10 +1390,8 @@
             jukeboxData.infiniteMode = !jukeboxData.infiniteMode;
             if (jukeboxData.infiniteMode) {
                 info("Infinite Mode enabled");
-                ga_track('main', 'infinite-mode', '');
             } else {
                 info("Bringing it on home");
-                ga_track('main', 'home', '');
             }
         }
 
@@ -1404,10 +1403,8 @@
             evt.preventDefault();
             if (driver.isRunning()) {
                 driver.stop();
-                ga_track('main', 'key-stop', '');
             } else {
                 driver.start();
-                ga_track('main', 'key-start', '');
             }
         }
 
@@ -1445,10 +1442,8 @@
             function () {
                 if (driver.isRunning()) {
                     driver.stop();
-                    ga_track('main', 'stop', track.info.id);
                 } else {
                     driver.start();
-                    ga_track('main', 'start', track.info.id);
                 }
             }
         );
@@ -1459,7 +1454,6 @@
                     driver.stop();
                 }
                 setDisplayMode(false);
-                ga_track('main', 'new', '');
             }
         );
 
@@ -1471,7 +1465,6 @@
                 else
                     controls.dialog('open');
                 jukeboxData.tuningOpen = !jukeboxData.tuningOpen;
-                ga_track('main', 'tune', '');
             }
         );
 
@@ -1496,7 +1489,6 @@
         $("#reset-edges").click(
             function () {
                 resetTuning();
-                ga_track('main', 'reset', '');
             }
         );
 
