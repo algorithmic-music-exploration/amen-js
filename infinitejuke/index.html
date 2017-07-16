@@ -423,12 +423,16 @@
     }
 
     function drawVisualization() {
+        console.log("at the top of drawVisualization");
         if (track) {
             if (jukeboxData.currentThreshold == 0) {
+                console.log("dynamic NN call");
                 dynamicCalculateNearestNeighbors('beats');
             } else {
+                console.log("regular NN call");
                 calculateNearestNeighbors('beats', jukeboxData.currentThreshold);
             }
+            console.log("about to draw the panel");
             createTilePanel('beats');
         }
     }
@@ -983,9 +987,9 @@
 
     function precalculateNearestNeighbors(type, maxNeighbors, maxThreshold) {
         // skip if this is already done
-        if ('all_neighbors' in track.analysis[type][0]) {
-            return;
-        }
+        //if ('all_neighbors' in track.analysis[type][0]) {
+        //    return;
+        //}
         jukeboxData.allEdges = [];
         for (var qi = 0; qi < track.analysis[type].length; qi++) {
             var q1 = track.analysis[type][qi];
@@ -1784,6 +1788,7 @@
         var timeDiv = $("#time");
 
         function next() {
+            console.log("next");
             if (curTile == null || curTile == undefined) {
                 return jukeboxData.tiles[0];
             } else {
@@ -1937,6 +1942,7 @@
 
 
         function process() {
+            console.log("in process");
             if (curTile !== null && curTile !== undefined) {
                 curTile.normal();
             }
@@ -1951,6 +1957,8 @@
                 }
 
                 if (curTile) {
+                    console.log("got a curTile");
+                    console.log(nextTime);
                     var ctime = player.curTime();
                     // if we are consistently late we should shutdown
                     if (ctime > nextTime) {
@@ -1964,9 +1972,11 @@
                         lateCounter = 0;
                     }
 
+                    console.log(curTile);
                     nextTime = player.play(nextTime, curTile.q);
 
                     if (fastMode) {
+                        console.log("fastMode is on?");
                         nextTime = 0; // set to zero for speedup sim mode
                     }
                     curTile.playCount += 1;
@@ -2154,7 +2164,7 @@
                 }
             }
             setDisplayMode(true);
-            fetchAnalysis(id);
+            // fetchAnalysis(id); // unsure how we're going to deal with all the param stuff
         } else if ('key' in params) {
             var url = 'http://' + params['bucket'] + '/' + urldecode(params['key']);
             info("analyzing audio");
@@ -2163,7 +2173,7 @@
             analyzeAudio(url, 'tag',
               function (data) {
                 if (data.status === 'done') {
-                  showPlotPage(data.id);
+                  showPlotPage(data.id); // AHA.  We should be getting redirected here, maybe?
                 } else {
                   info("Trouble analyzing that track " + data.message);
                 }

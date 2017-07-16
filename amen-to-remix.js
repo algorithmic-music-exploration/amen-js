@@ -14,8 +14,19 @@ var amenToRemix = function(track) {
 
     filterSegments(track);
 
+    addConfidenceToSegments(track);
+
     return track;
 }
+
+// Hack to make Infinite Juke work.
+// Amen may return confidence for segments at some point, but not now
+function addConfidenceToSegments(track) {
+    for (var i = 0; i < track.analysis.segments.length; i++) {
+        var seg = track.analysis.segments[i];
+        seg.confidence = 0.0;
+    }
+} 
 
 function isSimilar(seg1, seg2) {
 	var threshold = 1;
