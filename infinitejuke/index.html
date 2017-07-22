@@ -44,7 +44,7 @@
         <div id="details">
             <a href="" target="_blank" id="song-url"><span id="song-title"> </span></a>
             <br>
-            <span id="play-button-panel">
+            <span class="hidden" id="play-button-panel">
                 <button class="btn btn-small" id="go">Play</button>
                 <!-- <button class="btn btn-small" id="tune">Tune</button> -->
             </span>
@@ -436,6 +436,7 @@
     }
 
     function readyToPlay(t) {
+        $("#play-button-panel").show();
         setDisplayMode(true);
         driver = Driver(player);
         info("Ready!");
@@ -1387,13 +1388,16 @@
         paper = Raphael("tiles", W, H);
 
         $("#error").hide();
+        $("#play-button-panel").hide();
 
         $("#go").click(
             function () {
                 if (driver.isRunning()) {
                     driver.stop();
+                    $("#upload").show();
                 } else {
                     driver.start();
+                    $("#upload").hide();
                 }
             }
         );
