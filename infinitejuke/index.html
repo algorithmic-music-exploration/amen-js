@@ -526,7 +526,8 @@
 
     function removeDeletedEdges() {
         for (var i = 0; i < jukeboxData.deletedEdges.length; i++) {
-            var edgeID = jukeboxData.deletedEdges[i]; f (edgeID in jukeboxData.allEdges) {
+            var edgeID = jukeboxData.deletedEdges[i]; 
+            if (edgeID in jukeboxData.allEdges) {
                 var edge = jukeboxData.allEdges[edgeID];
                 deleteEdge(edge);
             }
