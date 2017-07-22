@@ -33,6 +33,19 @@ function isSimilar(seg1, seg2) {
 	var distance = timbral_distance(seg1, seg2);
 	return (distance < threshold);
 }
+ 
+function timbral_distance(s1, s2) {
+    return euclidean_distance(s1.timbre, s2.timbre);
+}
+
+function euclidean_distance(v1, v2) {
+    var sum = 0;
+    for (var i = 0; i < 3; i++) {
+        var delta = v2[i] - v1[i];
+        sum += delta * delta;
+    }
+    return Math.sqrt(sum);
+}
 
 function filterSegments(track) {
     var threshold = .3;

@@ -6,7 +6,6 @@
 
     <script type="text/javascript" src="../amen.js"></script>
     <script type="text/javascript" src="../amen-to-remix.js"></script>
-    <script type="text/javascript" src="jremix.js"></script>
     <script type="text/javascript" src="watch.js"></script>
     <script type="text/javascript" src="underscore-min.js"></script>
 
@@ -200,7 +199,7 @@
 
     function stop() {
         player.stop();
-        player = remixer.getPlayer();
+        player = amen.getPlayer();
     }
 
     // Chain of functions for uploading:  upload, poll for analysis, do the work.
@@ -1718,9 +1717,6 @@
         if (context === null) {
             error("Sorry, this app needs advanced web audio. Your browser doesn't  support it. Try the latest version of Chrome, Firefox, or Safari");
             hideAll();
-        } else {
-            remixer = createJRemixer(context, $);
-            player = remixer.getPlayer();
         }
     } // end window.init monster
 
