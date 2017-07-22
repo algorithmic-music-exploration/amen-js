@@ -80,9 +80,7 @@
     // dash during Music Hack Day Boston 2012, and has
     // quite a bit of hackage of the bad kind in it.
 
-    // Tacky global state holder.
-    // This can be in 'upload', 'uploading', 'playback'
-    var state = 'upload';
+    var context;  // any reason why this can't be global?
 
     var remixer;
     var player;
@@ -252,12 +250,11 @@
     var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3.analysis.json";
 
     console.log("do the remix!");
-    var context = getAudioContext();
+    context = getAudioContext();
     var amen = initializeAmen(context, $);
     player = amen.getPlayer();
 
     amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
-
       console.log(percent);
       if (t.status = "ok" && percent == 100) {
         console.log("track has loaded");
@@ -1748,7 +1745,7 @@
         jukeboxData.randomBranchChanceDelta = defaultRandomBranchChanceDelta;
 
 
-        var context = getAudioContext();
+        context = getAudioContext();
         if (context === null) {
             error("Sorry, this app needs advanced web audio. Your browser doesn't"
                 + " support it. Try the latest version of Chrome, Firefox, or Safari");
@@ -1763,13 +1760,13 @@
     } // end window.init monster
 
     function getAudioContext() {
-        var context = null;
+        var cxt = null;
         if (typeof AudioContext !== "undefined") {
-            context = new AudioContext();
+            cxt = new AudioContext();
         } else if (typeof webkitAudioContext !== "undefined") {
-            context = new webkitAudioContext();
+            cxt = new webkitAudioContext();
         }
-        return context;
+        return cxt;
     }
 
     function Driver(player) {
@@ -1958,7 +1955,7 @@
 
                 if (curTile) {
                     console.log("got a curTile");
-                    console.log(nextTime);
+                    console.log(ctime, nextTime);
                     var ctime = player.curTime();
                     // if we are consistently late we should shutdown
                     if (ctime > nextTime) {
