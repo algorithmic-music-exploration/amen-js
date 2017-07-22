@@ -52,8 +52,7 @@
               <form enctype="multipart/form-data" action="/upload/image" method="post">
                   <input id="file" type="file" />
               </form>
-              <!-- this will become uploadFile, soon! -->
-              <button class="btn btn-small" id="upload" onclick="doRemix()">Upload</button>
+              <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
             </div>
         </div>
 
@@ -208,7 +207,8 @@
       console.log("about to upload", fd);
 
       var xhr = new XMLHttpRequest();
-      var url = 'http://tide-pool.link/amen-test';
+      //  YOUR URL HERE
+      var url = 'http://httpbin.org/post';
       xhr.open('POST', url, true);
       xhr.onreadystatechange = responseHandler;
       xhr.send(fd);
@@ -218,7 +218,14 @@
     var responseHandler = function(res) {
       if (res.target.readyState === 4) {
         var urls = $.parseJSON(res.target.response);
+
+        // debug setup for urls.
+        var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3"
+        var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3.analysis.json";
+        urls.audio = trackUrl;
+        urls.analysis = analysisUrl;
         console.log(urls);
+
         pollUrl(urls.audio, doRemix, urls, 200);
       } 
     }
@@ -240,15 +247,14 @@
     });
   }
 
-  function doRemix() {
-    var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3"
-    var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3.analysis.json";
+  function doRemix(urls) {
+    var trackUrl = urls.audio;
+    var analysisUrl = urls.analysis;
 
     console.log("do the remix!");
     context = getAudioContext();
     var amen = initializeAmen(context, $);
     player = amen.getPlayer();
-
     amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
       console.log(percent);
       if (t.status = "ok" && percent == 100) {
