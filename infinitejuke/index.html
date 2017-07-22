@@ -450,36 +450,6 @@
         drawVisualization();
     }
 
-    // Here!  This needs to be replaced with amen.loadTrack, instead of remixer.remixTrack
-    function gotTheAnalysis(profile) {
-        info("Loading track ...");
-        remixer.remixTrack(profile, jukeboxData, function (state, t, percent) {
-            track = t;
-            if (isNaN(percent)) {
-                percent = 0;
-            }
-            if (state === 1) {
-                info("Calculating pathways through the song ...");
-                setTimeout(function () {
-                    readyToPlay(t);
-                }, 10);
-            } else if (state === 0) {
-                if (percent >= 99) {
-                    info("Calculating pathways through the song ...");
-                } else {
-                    if (percent > 0) {
-                        info(percent + "% of track loaded ");
-                    } else {
-                        info("Loading the track ");
-                    }
-                }
-            } else {
-                info('Trouble  ' + t.status);
-                setDisplayMode(false);
-            }
-        });
-    }
-
     function analyzeAudio(audio, tag, callback) {
         var url = 'qanalyze';
         $.getJSON(url, {url: audio, tag: tag}, function (data) {
@@ -1744,18 +1714,13 @@
         jukeboxData.maxRandomBranchChance = defaultMaxRandomBranchChance;
         jukeboxData.randomBranchChanceDelta = defaultRandomBranchChanceDelta;
 
-
         context = getAudioContext();
         if (context === null) {
-            error("Sorry, this app needs advanced web audio. Your browser doesn't"
-                + " support it. Try the latest version of Chrome, Firefox, or Safari");
-
+            error("Sorry, this app needs advanced web audio. Your browser doesn't  support it. Try the latest version of Chrome, Firefox, or Safari");
             hideAll();
-
         } else {
             remixer = createJRemixer(context, $);
             player = remixer.getPlayer();
-            processParams();
         }
     } // end window.init monster
 
@@ -1781,7 +1746,6 @@
         var lateLimit = 4;
 
         var beatDiv = $("#beats");
-        // var playcountDiv = $("#playcount");
         var timeDiv = $("#time");
 
         function next() {
@@ -1910,8 +1874,6 @@
                 if (q.which == jukeboxData.lastBranchPoint) {
                     return true;
                 }
-
-                // return true; // TEST, remove
 
                 jukeboxData.curRandomBranchChance += jukeboxData.randomBranchChanceDelta;
                 if (jukeboxData.curRandomBranchChance > jukeboxData.maxRandomBranchChance) {
@@ -2084,110 +2046,6 @@
         return document.webkitHidden;
     }
 
-    function processParams() {
-        var params = {};
-        var q = document.URL.split('?')[1];
-        if (q !== undefined) {
-            q = q.split('&');
-            for (var i = 0; i < q.length; i++) {
-                var pv = q[i].split('=');
-                var p = pv[0];
-                var v = pv[1];
-                params[p] = v;
-            }
-        }
-
-        if ('id' in params) {
-            var id = params['id'];
-            jukeboxData.trackID = id;
-
-            var thresh = 0;
-            if ('thresh' in params) {
-                jukeboxData.currentThreshold = parseInt(params['thresh']);
-            }
-            if ('audio' in params) {
-                jukeboxData.audioURL = decodeURIComponent(params['audio']);
-            }
-            if ('d' in params) {
-                var df = params['d'].split(',');
-                for (var i = 0; i < df.length; i++) {
-                    var id = parseInt(df[i]);
-                    jukeboxData.deletedEdges.push(id);
-                }
-            }
-            if ('lb' in params) {
-                if (params['lb'] === '0') {
-                    jukeboxData.addLastEdge = true;
-                }
-            }
-
-            if ('jb' in params) {
-                if (params['jb'] === '1') {
-                    jukeboxData.justBackwards = true;
-                }
-            }
-
-            if ('lg' in params) {
-                if (params['lg'] === '1') {
-                    jukeboxData.justLongBranches = true;
-                }
-            }
-
-            if ('sq' in params) {
-                if (params['sq'] === '0') {
-                    jukeboxData.removeSequentialBranches = true;
-                }
-            }
-
-            if ('nokeys' in params) {
-                if (params['nokeys'] === '1') {
-                    jukeboxData.disableKeys = true
-                }
-            }
-
-            if ('bp' in params) {
-                var bp = params['bp'];
-                var fields = bp.split(',');
-                if (fields.length === 3) {
-                    var minRange = parseInt(fields[0]);
-                    var maxRange = parseInt(fields[1]);
-                    var delta = parseInt(fields[2]);
-
-                    jukeboxData.minRandomBranchChance = map_percent_to_range(minRange, 0, 1);
-                    jukeboxData.maxRandomBranchChance = map_percent_to_range(maxRange, 0, 1);
-                    jukeboxData.randomBranchChanceDelta =
-                        map_percent_to_range(delta, minRandomBranchChanceDelta, maxRandomBranchChanceDelta);
-
-                }
-            }
-            setDisplayMode(true);
-            // fetchAnalysis(id); // unsure how we're going to deal with all the param stuff
-        } else if ('key' in params) {
-            var url = 'http://' + params['bucket'] + '/' + urldecode(params['key']);
-            info("analyzing audio");
-            setDisplayMode(true);
-            $("#select-track").hide();
-            analyzeAudio(url, 'tag',
-              function (data) {
-                if (data.status === 'done') {
-                  showPlotPage(data.id); // AHA.  We should be getting redirected here, maybe?
-                } else {
-                  info("Trouble analyzing that track " + data.message);
-                }
-              }
-            );
-        }
-        else {
-            setDisplayMode(false);
-        }
-    }
-
-    function showPlotPage(id) {
-        var url = location.protocol + "//" +
-            location.host + location.pathname + "?id=" + id;
-        location.href = url;
-    }
-
     function urldecode(str) {
         return decodeURIComponent((str + '').replace(/\+/g, '%20'));
     }
@@ -2203,12 +2061,12 @@
     window.onload = init;
 </script>
 
-<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable"
-     style="display: none; outline: 0px none; z-index: 1000;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">
-    <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span id="ui-id-1"
-                                                                                            class="ui-dialog-title">Fine tune your endless song</span><a
-            href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span
-            class="ui-icon ui-icon-closethick">close</span></a></div>
+<div class="ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable" style="display: none; outline: 0px none; z-index: 1000;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">
+    <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+      <span id="ui-id-1" class="ui-dialog-title">Fine tune your endless song</span>
+      <a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button">
+      <span class="ui-icon ui-icon-closethick">close</span></a>
+    </div>
     <div id="controls" visibility="visible" style="display: block;" class="ui-dialog-content ui-widget-content">
         <div>
             <div id="control-instructions">
