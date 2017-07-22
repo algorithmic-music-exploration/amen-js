@@ -307,8 +307,7 @@
 
         // now connect every tile to its neighbors
         // (?? was there something here ??)
-        // a horrible hack until I figure out
-        // geometry
+        // a horrible hack until I figure out geometry
         var roffset = width / 2;
         var yoffset = width * .52;
         var xoffset = width * 1;
@@ -527,8 +526,7 @@
 
     function removeDeletedEdges() {
         for (var i = 0; i < jukeboxData.deletedEdges.length; i++) {
-            var edgeID = jukeboxData.deletedEdges[i];
-            if (edgeID in jukeboxData.allEdges) {
+            var edgeID = jukeboxData.deletedEdges[i]; f (edgeID in jukeboxData.allEdges) {
                 var edge = jukeboxData.allEdges[edgeID];
                 deleteEdge(edge);
             }
@@ -651,7 +649,7 @@
                 p += "&nokeys=1"
             }
 
-            history.replaceState({}, document.title, p);
+            // history.replaceState({}, document.title, p);
         }
     }
 
@@ -1435,13 +1433,6 @@
                 else
                     controls.dialog('open');
                 jukeboxData.tuningOpen = !jukeboxData.tuningOpen;
-            }
-        );
-
-        $("#canonize").click(
-            function () {
-                history.replaceState({}, document.title, document.URL.replace("jukebox_go", "canonizer_go"));
-                window.location.reload()
             }
         );
 
