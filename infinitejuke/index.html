@@ -13,41 +13,36 @@
     <link href="css/jquery-ui.css" rel="stylesheet" type="text/css" media="screen">
     <link href="css/juke.css" rel="stylesheet" type="text/css" media="screen">
 
-    <title>The Jukebox</title>
-    <meta property="og:title" content="The Jukebox"/>
+    <title>The Perpetual Jukebox</title>
+    <meta property="og:title" content="The Perpetual Jukebox"/>
     <meta property="og:description" content="For when your favorite song just isn't long enough"/>
     <meta property="og:type" content="website"/>
 </head>
 
 <body>
-<div id="wrap" class="navbar navbar-inverse">
-    <div class="navbar-inner">
-        <div class="container">
-            <div class="nav-collapse collapse">
-                <ul class="nav">
-                    <li class="dropdown">
-                        <a id='show-search' class="brand">The Jukebox</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id='info-div'>
-    <span id='info'></span>
+<h1 class="pagination-centered">The Perpetual Jukebox</h1>
+<div class="pagination-centered">
+    <p>
+      <span id="sbeats"> Total Beats: <span id="beats"> 0 </span></span>
+      <span id="stime"> Listen Time: <span id="time"> 00:00:00 </span></span>
+    </p>
+    <p>
+    <small>
+      Originally built at <a href="http://boston.musichackday.org/">Music Hack Day @ MIT</a> by
+      <a href="http://twitter.com/plamere">Paul Lamere</a>.
+      </small>
+    </p>
 </div>
 
 <div id='error'></div>
 <div id="hero">
-    <div id="stats">
+    <div id="stats" class="pagination-centered">
         <div id="details">
-            <a href="" target="_blank" id="song-url"><span id="song-title"> </span></a>
-            <br>
-            <span class="hidden" id="play-button-panel">
+            <div id="play-button-panel">
                 <button class="btn btn-small" id="go">Play</button>
                 <!-- <button class="btn btn-small" id="tune">Tune</button> -->
-            </span>
+            </div>
+
             <div id="upload">
               <form enctype="multipart/form-data" action="/upload/image" method="post">
                   <input id="file" type="file" />
@@ -55,17 +50,9 @@
               <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
             </div>
         </div>
+        <hr/>
 
         <div id="tiles"></div>
-        <span id="sbeats"> Total Beats: <span id="beats"> 0 </span></span>
-        <span id="stime"> Listen Time: <span id="time"> 00:00:00 </span></span>
-    </div>
-    <hr>
-    <div class="container span11">
-        <small>
-            Originally built at <a href="http://boston.musichackday.org/">Music Hack Day @ MIT</a> by
-            <a href="http://twitter.com/plamere">Paul Lamere</a>.
-        </small>
     </div>
 </div>
 
