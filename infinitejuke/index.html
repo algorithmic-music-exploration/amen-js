@@ -34,27 +34,27 @@
     </p>
 </div>
 
-<div id='error'></div>
 <div id="hero">
     <div id="stats" class="pagination-centered">
         <div id="details">
-            <div id="play-button-panel">
-                <button class="btn btn-small" id="go">Play</button>
-                <!-- <button class="btn btn-small" id="tune">Tune</button> -->
-            </div>
 
             <div id="upload">
-              <form enctype="multipart/form-data" action="/upload/image" method="post">
+              <form enctype="multipart/form-data" action="/upload/image" method="post" style="display: inline;">
                   <input id="file" type="file" />
               </form>
               <button class="btn btn-small" id="upload" onclick="uploadFile()">Upload</button>
             </div>
+
+            <div id="play-button-panel">
+                <button class="btn btn-small" id="go">Play</button>
+                <!-- <button class="btn btn-small" id="tune">Tune</button> -->
+            </div>
         </div>
         <hr/>
-
-        <div id="tiles"></div>
     </div>
 </div>
+
+<div id="tiles" class="pagination-centered"></div>
 
 <script type="text/javascript">
     // This code will make you cry. It was written in a mad
