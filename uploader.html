@@ -67,7 +67,7 @@ var uploadFile = function() {
 	console.log("about to upload", fd);
 
 	var xhr = new XMLHttpRequest();
-	var url = 'http://tide-pool.link/amen-test';
+	var url = 'http://ec2-35-163-115-205.us-west-2.compute.amazonaws.com/amen-test';
 	xhr.open('POST', url, true);
 	xhr.onreadystatechange = responseHandler;
 	xhr.send(fd);
