@@ -17,7 +17,7 @@ var amenToRemix = function(track) {
     addConfidenceToSegments(track);
 
     return track;
-}
+};
 
 // Hack to make Infinite Juke work.
 // Amen may return confidence for segments at some point, but not now
@@ -29,9 +29,9 @@ function addConfidenceToSegments(track) {
 } 
 
 function isSimilar(seg1, seg2) {
-	var threshold = 1;
-	var distance = timbral_distance(seg1, seg2);
-	return (distance < threshold);
+    var threshold = 1;
+    var distance = timbral_distance(seg1, seg2);
+    return (distance < threshold);
 }
  
 function timbral_distance(s1, s2) {
@@ -100,7 +100,7 @@ function connectFirstOverlappingSegment(track, quanta_name) {
             if (qseg.start >= q.start) {
                 q.oseg = qseg;
                 last = j;
-                break
+                break;
             }
         }
     }
@@ -130,3 +130,5 @@ function connectAllOverlappingSegments(track, quanta_name) {
         }
     }
 }
+
+exports.amenToRemix = amenToRemix;
