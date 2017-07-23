@@ -67,7 +67,7 @@
     var player;
     var driver;
     var track;
-    var W = 900, H = 680;
+    var W = 1200, H = 900;
     var paper;
 
     // configs for chances to branch
@@ -256,7 +256,7 @@
 
     // Tile functions
     function createTiles(qtype) {
-        return createTileCircle(qtype, 250);
+        return createTileCircle(qtype, 400);
     }
 
     function createTileCircle(qtype, radius) {
@@ -300,7 +300,7 @@
         var roffset = width / 2;
         var yoffset = width * .52;
         var xoffset = width * 1;
-        var center = ' S 450 350 ';
+        var center = ' S 600 475 ';
         var branchCount = 0;
         R -= roffset;
         for (var i = 0; i < tiles.length; i++) {
