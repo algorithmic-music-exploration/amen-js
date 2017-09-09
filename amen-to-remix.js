@@ -12,9 +12,9 @@ var amenToRemix = function(track) {
     connectAllOverlappingSegments(track, 'beats');
     connectAllOverlappingSegments(track, 'tatums');
 
-    filterSegments(track);
-
     addConfidenceToSegments(track);
+
+    filterSegments(track);
 
     return track;
 };

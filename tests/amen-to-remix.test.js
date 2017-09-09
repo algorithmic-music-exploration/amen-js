@@ -1,6 +1,5 @@
 amenToRemix = require('../amen-to-remix');
 
-
 var track = {};
 track.status = null;
 track.buffer = null;
@@ -26,19 +25,28 @@ segment.timbre = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 analysis.segments.push(segment);
 analysis.segments.push(segment);
+
+var segmentTwo = {};
+segmentTwo.amplitude = 0.1;
+segmentTwo.centroid = 3000;
+segmentTwo.duration = 0.5;
+segmentTwo.kind = "segment";
+segmentTwo.loudness_max = 0.1;
+segmentTwo.loudness_max_time = 0;
+segmentTwo.loudness_start = 0;
+segmentTwo.timbre = [9.0, 9.0, 9.0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+analysis.segments.push(segmentTwo);
+
 track.analysis = analysis;
 
 var result = amenToRemix.amenToRemix(track)
-
  test('amenToRemix adds a dummy confidence value to each segment', () => {
        expect(result.analysis.segments[0].confidence).toBe(0.0);
  });
 
-// This will have to change as we build out the other tests
+// As the test is set up, this filters the last segment out
  test('amenToRemix filters segments that are similar', () => {
        expect(result.analysis.fsegments.length).toBe(2);
  });
 
-test('Dummy test to make sure that jest is working', () => {
-    expect(true).toBe(true);
-});
