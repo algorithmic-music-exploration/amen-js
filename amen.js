@@ -2,9 +2,17 @@
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
 // Need to handle proper packaging for browser stuff, too!
 var initializeAmen = function(context) {
+
+    // OK, so there's a few choices here:
+    // I can nest the needed functions in each public function
+    // I can make other files
+    // I can make other objects in this file.
+    // I also have this semi-global need for the audio context, hmm.
+        // I could pass it into getPlayer, as well, hmmmmm.
+
     // oh wow, need to make all of this speak Promises
     var amen = {
-        // This function can probabl just become a Promise?
+        // This function can probably just become a Promise?
         // shoudl be public!
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
@@ -213,11 +221,6 @@ var initializeAmen = function(context) {
                 }
             } // end play
 
-            // this and trace() should be package-global or be deleted
-            function error(s) {
-                console.log(s);
-            }
-
 
             // the actual player object that we get
             var player = {
@@ -268,11 +271,18 @@ var initializeAmen = function(context) {
 
             return player;
         },
-    };
+    }; // end amen
 
     // These ones are small and easy to test - but where are they used / where should they go?
     // Let's move these small ones into Player, but make trace / error global?
     // We can make error() call error, I tell you what
+
+
+    // ah, these are global-to-this-module, but are also privte!
+    // yeah, let's move shit here, I think?
+    // is it too too tacky to move all child functions of LOADING here, 
+    // and then put a BIG COMMENT and move all child functions of the playe here?
+    // I think this is fine, I will do it tomorrow
 
    // used in Player
     function isQuantum(a) {
@@ -291,6 +301,10 @@ var initializeAmen = function(context) {
 
     function trace(text) {
         console.log(text);
+    }
+
+    function error(s) {
+        console.log(s);
     }
 
     return amen;
