@@ -4,6 +4,8 @@
 var initializeAmen = function(context) {
     // oh wow, need to make all of this speak Promises
     var amen = {
+        // This function can probabl just become a Promise?
+        // shoudl be public!
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
 
@@ -24,10 +26,11 @@ var initializeAmen = function(context) {
             request.onerror = function() {
                 // There was a connection error of some sort
             };
-
             request.send();
         },
 
+
+        // basically a promise, should not be public
         prepareTrack : function(track, trackURL, callback) {
             if (track.status == 'complete') {
                 preprocessTrack(track);
@@ -36,6 +39,7 @@ var initializeAmen = function(context) {
                 track.status = 'error: incomplete analysis';
             }
 
+            // Another promise. Does this have to be declared in prepareTrack?
             function fetchAudio(url) {
                 var request = new XMLHttpRequest();
                 trace('fetching audio ' + url);
@@ -70,8 +74,9 @@ var initializeAmen = function(context) {
                 };
 
                 request.send();
-            }
+            } // end fetchAudio
 
+            // not a promise - again, does this need to be created in prepareTrack?
             function preprocessTrack(track) {
                 trace('preprocessTrack');
                 // Eventually we will have sections, bars, and maybe tatums here
@@ -117,14 +122,10 @@ var initializeAmen = function(context) {
                         }
                     }
                 }
-                // we don't need 'bars.beats' as  as much as Remix did, but it can be nice to have
-                // Let's log it as an issue, and then bring it back later on
-                // ISSUE:  Add support for 'bar.beats', either thru json or via the old connectQuanta function
-                // Unsure if Infinite Juke uses fsegs, but we can restore them later
-                // ISSUE:  add support for filteredSegments, from old code
-            }
+            } // end preprocessTrack
         },
 
+        // not a promise, should for sure be public 
         getPlayer : function(effects) {
             var queueTime = 0;
             var audioGain = context.createGain();
@@ -142,6 +143,7 @@ var initializeAmen = function(context) {
             }
             effects[i].connect(context.destination);
 
+            // so it looks like the style is for each top-level function to declare it's own sub-functions?
             function queuePlay(when, q) {
                 audioGain.gain.value = 1;
                 var theTime = context.currentTime;
@@ -209,12 +211,15 @@ var initializeAmen = function(context) {
                     error('cannot play ' + q);
                     return when;
                 }
-            }
+            } // end play
 
+            // this and trace() should be package-global or be deleted
             function error(s) {
                 console.log(s);
             }
 
+
+            // the actual player object that we get
             var player = {
                 play: function(when, q) {
                     return queuePlay(when, q);
@@ -263,18 +268,23 @@ var initializeAmen = function(context) {
 
             return player;
         },
-        // ISSUE:  Bring back saveRemixLocally - probably a better way to do it that 5 years ago?
-        // Or, put it in a seperate thing!
     };
 
+    // These ones are small and easy to test - but where are they used / where should they go?
+    // Let's move these small ones into Player, but make trace / error global?
+    // We can make error() call error, I tell you what
+
+   // used in Player
     function isQuantum(a) {
         return 'start' in a && 'duration' in a;
     }
 
+    // used in Player
     function isAudioBuffer(a) {
         return 'getChannelData' in a;
     }
 
+    // used in Player
     function isSilence(a) {
         return 'isSilence' in a;
     }
@@ -285,9 +295,5 @@ var initializeAmen = function(context) {
 
     return amen;
 };
-
-// ISSUE:  There's lots of stuff that Infinite Juke uses that should not be in amen.js
-// I should bring it back and put it somewhere - maybe amen.util?  
-// Gonna need some wider js packaging stuff too, ho ho ho
 
 exports.amen = initializeAmen;
