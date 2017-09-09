@@ -37,7 +37,6 @@ var initializeAmen = function(context) {
             request.send();
         },
 
-
         // not a promise, should for sure be public 
         getPlayer : function(effects) {
             var queueTime = 0;
@@ -56,6 +55,54 @@ var initializeAmen = function(context) {
             }
             effects[i].connect(context.destination);
 
+            // the actual player object that we get
+            var player = {
+                play: function(when, q) {
+                    return queuePlay(when, q);
+                },
+
+                addOnPlayCallback: function(callback) {
+                    onPlayCallback = callback;
+                },
+
+                addAfterPlayCallback: function(callback) {
+                    afterPlayCallback = callback;
+                },
+
+                queue: function(q) {
+                    var now = context.currentTime;
+                    if (now > queueTime) {
+                        queueTime = now;
+                    }
+                    queueTime = queuePlay(queueTime, q);
+                },
+
+                queueRest: function(duration) {
+                    queueTime += duration;
+                },
+
+                stop: function() {
+                    for (var i = 0; i < currentlyQueued.length; i++) {
+                        if (currentlyQueued[i] != null) {
+                            currentlyQueued[i].stop();
+                        }
+                    }
+                    currentlyQueued = new Array();
+
+                    if (currentTriggers.length > 0) {
+                        for (var j = 0; j < currentTriggers.length; j++) {
+                            clearTimeout(currentTriggers[j]);
+                        }
+                        currentTriggers = new Array();
+                    }
+                },
+
+                curTime: function() {
+                    return context.currentTime;
+                },
+            }; // end player
+
+            // private ugly thing for actually doing playback
             function queuePlay(when, q) {
                 audioGain.gain.value = 1;
                 var theTime = context.currentTime;
@@ -125,62 +172,25 @@ var initializeAmen = function(context) {
                 }
             } // end play
 
+           // used in Player
+            function isQuantum(a) {
+                return 'start' in a && 'duration' in a;
+            }
 
-            // the actual player object that we get
-            var player = {
-                play: function(when, q) {
-                    return queuePlay(when, q);
-                },
+            // used in Player
+            function isAudioBuffer(a) {
+                return 'getChannelData' in a;
+            }
 
-                addOnPlayCallback: function(callback) {
-                    onPlayCallback = callback;
-                },
-
-                addAfterPlayCallback: function(callback) {
-                    afterPlayCallback = callback;
-                },
-
-                queue: function(q) {
-                    var now = context.currentTime;
-                    if (now > queueTime) {
-                        queueTime = now;
-                    }
-                    queueTime = queuePlay(queueTime, q);
-                },
-
-                queueRest: function(duration) {
-                    queueTime += duration;
-                },
-
-                stop: function() {
-                    for (var i = 0; i < currentlyQueued.length; i++) {
-                        if (currentlyQueued[i] != null) {
-                            currentlyQueued[i].stop();
-                        }
-                    }
-                    currentlyQueued = new Array();
-
-                    if (currentTriggers.length > 0) {
-                        for (var j = 0; j < currentTriggers.length; j++) {
-                            clearTimeout(currentTriggers[j]);
-                        }
-                        currentTriggers = new Array();
-                    }
-                },
-
-                curTime: function() {
-                    return context.currentTime;
-                },
-            }; // end player
+            // used in Player
+            function isSilence(a) {
+                return 'isSilence' in a;
+            }
 
             return player;
         },
     }; // end amen
 
-    // These ones are small and easy to test - but where are they used / where should they go?
-    // Let's move these small ones into Player, but make trace / error global?
-    // We can make error() call error, I tell you what
-    
     // HELPERS FOR LOADING AUDIO
 
     // basically a promise
@@ -277,24 +287,7 @@ var initializeAmen = function(context) {
         }
     } // end preprocessTrack
 
-
     // HELPERS FOR CREATING THE PLAYER AND PLAYING AUDIO
-
-
-   // used in Player
-    function isQuantum(a) {
-        return 'start' in a && 'duration' in a;
-    }
-
-    // used in Player
-    function isAudioBuffer(a) {
-        return 'getChannelData' in a;
-    }
-
-    // used in Player
-    function isSilence(a) {
-        return 'isSilence' in a;
-    }
 
 
     // HELPERS FOR CONSOLE LOGGING
