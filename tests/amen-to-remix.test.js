@@ -50,3 +50,7 @@ var result = amenToRemix.amenToRemix(track)
        expect(result.analysis.fsegments.length).toBe(2);
  });
 
+ test('amenToRemix connects quanta', () => {
+       expect(result.analysis.fsegments.length).toBe(false);
+ });
+
