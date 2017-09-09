@@ -36,7 +36,7 @@ var initializeAmen = function(context) {
             };
             request.send();
         }
-    }
+    };
 
 
     // HELPERS FOR LOADING AUDIO
@@ -53,14 +53,14 @@ var initializeAmen = function(context) {
     // Once we promise this up, we can take the callback out!
     function fetchAudio(url, track, callback) {
         var request = new XMLHttpRequest();
-        trace('fetching audio ' + url);
+        console.log('fetching audio ' + url);
         track.buffer = null;
         request.open('GET', url, true);
         request.responseType = 'arraybuffer';
         this.request = request;
 
         request.onload = function() {
-            trace('audio loading ...');
+            console.log('audio loading ...');
             context.decodeAudioData(request.response,
                 function(buffer) {      // completed function
                     track.buffer = buffer;
@@ -75,7 +75,7 @@ var initializeAmen = function(context) {
         };
 
         request.onerror = function(e) {
-            trace('error loading loaded', e);
+            console.log('error loading loaded', e);
             track.status = 'error: loading audio';
         };
 
@@ -88,13 +88,13 @@ var initializeAmen = function(context) {
     } // end fetchAudio
 
     function preprocessTrack(track) {
-        trace('preprocessTrack');
+        console.log('preprocessTrack');
         // Eventually we will have sections, bars, and maybe tatums here
         var types = ['segments', 'beats'];
 
         for (var i in types) {
             var type = types[i];
-            trace('preprocessTrack ' + type);
+            console.log('preprocessTrack ' + type);
             // This j might need to be a regular for loop ...
             for (var j in track.analysis[type]) {
                 var qlist = track.analysis[type];
@@ -133,15 +133,6 @@ var initializeAmen = function(context) {
             }
         }
     } // end preprocessTrack
-
-    // HELPERS FOR CONSOLE LOGGING
-    function trace(text) {
-        console.log(text);
-    }
-
-    function error(s) {
-        console.log(s);
-    }
 
     return amen;
 };

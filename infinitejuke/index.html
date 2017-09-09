@@ -184,7 +184,7 @@
 
     function stop() {
         player.stop();
-        player = getAmenPlayer(context);
+        player = amenPlayer(context);
     }
 
     // Chain of functions for uploading:  upload, poll for analysis, do the work.
@@ -244,7 +244,7 @@
     console.log("do the remix!");
     context = getAudioContext();
     var amen = initializeAmen(context, $);
-    player = getAmenPlayer(context);
+    player = amenPlayer(context);
     amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
       console.log(percent);
       if (t.status = "ok" && percent == 100) {

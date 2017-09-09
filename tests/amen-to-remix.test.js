@@ -67,21 +67,22 @@ track.analysis = analysis;
 
 
 var result = amenToRemix.amenToRemix(track)
- test('amenToRemix adds a dummy confidence value to each segment', () => {
-       expect(result.analysis.segments[0].confidence).toBe(0.0);
- });
+
+test('amenToRemix adds a dummy confidence value to each segment', () => {
+    expect(result.analysis.segments[0].confidence).toBe(0.0);
+});
 
 // As the test is set up, this filters the last segment out
- test('amenToRemix filters segments that are similar', () => {
-       expect(result.analysis.fsegments.length).toBe(2);
- });
+test('amenToRemix filters segments that are similar', () => {
+    expect(result.analysis.fsegments.length).toBe(2);
+});
 
- test('amenToRemix connects first overlapping segment', () => {
-       expect(result.analysis.beats[0].oseg).toEqual(segment);
- });
+test('amenToRemix connects first overlapping segment', () => {
+    expect(result.analysis.beats[0].oseg).toEqual(segment);
+});
 
- test('amenToRemix connects all overlapping segments', () => {
-       expect(result.analysis.beats[0].overlappingSegments.length).toBe(3);
-       expect(result.analysis.beats[0].overlappingSegments).toEqual(analysis.segments);
- });
+test('amenToRemix connects all overlapping segments', () => {
+    expect(result.analysis.beats[0].overlappingSegments.length).toBe(3);
+    expect(result.analysis.beats[0].overlappingSegments).toEqual(analysis.segments);
+});
 

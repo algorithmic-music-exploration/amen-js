@@ -1,5 +1,4 @@
-var getAmenPlayer = function(context, effects) {
-
+var amenPlayer = function(context, effects) {
     var queueTime = 0;
     var audioGain = context.createGain();
     var currentlyQueued = new Array();
@@ -146,6 +145,6 @@ var getAmenPlayer = function(context, effects) {
     } // end play
 
     return player;
-}
+};
 
-exports.amenPlayer = getPlayer;
+exports.amenPlayer = amenPlayer;
