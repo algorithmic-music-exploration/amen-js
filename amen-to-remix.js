@@ -1,11 +1,6 @@
 var amenToRemix = function(track) {
-    connectFirstOverlappingSegment(track, 'bars');
     connectFirstOverlappingSegment(track, 'beats');
-    connectFirstOverlappingSegment(track, 'tatums');
-
-    connectAllOverlappingSegments(track, 'bars');
     connectAllOverlappingSegments(track, 'beats');
-    connectAllOverlappingSegments(track, 'tatums');
 
     addConfidenceToSegments(track);
 
