@@ -37,7 +37,6 @@ var initializeAmen = function(context) {
             request.send();
         },
 
-
         // basically a promise, should not be public
         prepareTrack : function(track, trackURL, callback) {
             if (track.status == 'complete') {
@@ -46,54 +45,6 @@ var initializeAmen = function(context) {
             } else {
                 track.status = 'error: incomplete analysis';
             }
-
-            // not a promise - again, does this need to be created in prepareTrack?
-            function preprocessTrack(track) {
-                trace('preprocessTrack');
-                // Eventually we will have sections, bars, and maybe tatums here
-                var types = ['segments', 'beats'];
-
-                for (var i in types) {
-                    var type = types[i];
-                    trace('preprocessTrack ' + type);
-                    // This j might need to be a regular for loop ...
-                    for (var j in track.analysis[type]) {
-                        var qlist = track.analysis[type];
-                        j = parseInt(j);
-                        var q = qlist[j];
-
-                        q.start = parseFloat(q.start);
-                        q.duration = parseFloat(q.duration);
-                        q.confidence = parseFloat(q.confidence);
-
-                        q.loudness_max = parseFloat(q.loudness_max);
-                        q.loudness_max_time = parseFloat(q.loudness_max_time);
-                        q.loudness_start = parseFloat(q.loudness_start);
-
-                        for (var k = 0; k < q.pitches.length; k++) {
-                            q.pitches[k] = parseFloat(q.pitches[k]);
-                        }
-                        for (var m = 0; m < q.timbre.length; m++) {
-                            q.timbre[m] = parseFloat(q.timbre[m]);
-                        }
-
-                        q.track = track;
-                        q.which = j;
-
-                        if (j > 0) {
-                            q.prev = qlist[j-1];
-                        } else {
-                            q.prev = null;
-                        }
-
-                        if (j < qlist.length - 1) {
-                            q.next = qlist[j+1];
-                        } else {
-                            q.next = null;
-                        }
-                    }
-                }
-            } // end preprocessTrack
         },
 
         // not a promise, should for sure be public 
@@ -279,6 +230,53 @@ var initializeAmen = function(context) {
         request.send();
     } // end fetchAudio
 
+    // not a promise - again, does this need to be created in prepareTrack?
+    function preprocessTrack(track) {
+        trace('preprocessTrack');
+        // Eventually we will have sections, bars, and maybe tatums here
+        var types = ['segments', 'beats'];
+
+        for (var i in types) {
+            var type = types[i];
+            trace('preprocessTrack ' + type);
+            // This j might need to be a regular for loop ...
+            for (var j in track.analysis[type]) {
+                var qlist = track.analysis[type];
+                j = parseInt(j);
+                var q = qlist[j];
+
+                q.start = parseFloat(q.start);
+                q.duration = parseFloat(q.duration);
+                q.confidence = parseFloat(q.confidence);
+
+                q.loudness_max = parseFloat(q.loudness_max);
+                q.loudness_max_time = parseFloat(q.loudness_max_time);
+                q.loudness_start = parseFloat(q.loudness_start);
+
+                for (var k = 0; k < q.pitches.length; k++) {
+                    q.pitches[k] = parseFloat(q.pitches[k]);
+                }
+                for (var m = 0; m < q.timbre.length; m++) {
+                    q.timbre[m] = parseFloat(q.timbre[m]);
+                }
+
+                q.track = track;
+                q.which = j;
+
+                if (j > 0) {
+                    q.prev = qlist[j-1];
+                } else {
+                    q.prev = null;
+                }
+
+                if (j < qlist.length - 1) {
+                    q.next = qlist[j+1];
+                } else {
+                    q.next = null;
+                }
+            }
+        }
+    } // end preprocessTrack
 
     // ah, these are global-to-this-module, but are also privte!
     // yeah, let's move shit here, I think?
