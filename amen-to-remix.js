@@ -1,20 +1,10 @@
 var amenToRemix = function(track) {
-    connectQuanta(track, 'sections', 'bars');
-    connectQuanta(track, 'bars', 'beats');
-    connectQuanta(track, 'beats', 'tatums');
-    connectQuanta(track, 'tatums', 'segments');
-
-    connectFirstOverlappingSegment(track, 'bars');
     connectFirstOverlappingSegment(track, 'beats');
-    connectFirstOverlappingSegment(track, 'tatums');
-
-    connectAllOverlappingSegments(track, 'bars');
     connectAllOverlappingSegments(track, 'beats');
-    connectAllOverlappingSegments(track, 'tatums');
-
-    filterSegments(track);
 
     addConfidenceToSegments(track);
+
+    filterSegments(track);
 
     return track;
 };
@@ -61,30 +51,6 @@ function filterSegments(track) {
         }
     }
     track.analysis.fsegments = fsegs;
-}
-
-function connectQuanta(track, parent, child) {
-    var last = 0;
-    var qparents = track.analysis[parent];
-    var qchildren = track.analysis[child];
-
-    for (var i in qparents) {
-        var qparent = qparents[i];
-        qparent.children = [];
-
-        for (var j = last; j < qchildren.length; j++) {
-            var qchild = qchildren[j];
-            if (qchild.start >= qparent.start
-                        && qchild.start < qparent.start + qparent.duration) {
-                qchild.parent = qparent;
-                qchild.indexInParent = qparent.children.length;
-                qparent.children.push(qchild);
-                last = j;
-            } else if (qchild.start > qparent.start) {
-                break;
-            }
-        }
-    }
 }
 
 function connectFirstOverlappingSegment(track, quanta_name) {

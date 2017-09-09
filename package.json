@@ -4,7 +4,7 @@
   "description": "JavaScript wrapper for Amen - a replacement for remix.js",
   "main": "amen.js",
   "scripts": {
-    "test": "eslint ."
+    "test": "jest && eslint ."
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/algorithmic-music-exploration/amen-js#readme",
   "devDependencies": {
-    "eslint": "^3.19.0"
+    "eslint": "^3.19.0",
+    "jest": "^20.0.4"
   }
 }
