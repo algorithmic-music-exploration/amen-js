@@ -26,7 +26,7 @@ var initializeAmen = function(context) {
                     // TODO - figure out why our JSON is double-encoded?
                     track.analysis = JSON.parse(track.analysis);
                     track.status = 'complete';
-                    amen.prepareTrack(track, trackURL, callback);
+                    prepareTrack(track, trackURL, callback);
                 } else {
                     // We reached our target server, but it returned an error
                 }
@@ -37,15 +37,6 @@ var initializeAmen = function(context) {
             request.send();
         },
 
-        // basically a promise, should not be public
-        prepareTrack : function(track, trackURL, callback) {
-            if (track.status == 'complete') {
-                preprocessTrack(track);
-                fetchAudio(trackURL, track, callback);
-            } else {
-                track.status = 'error: incomplete analysis';
-            }
-        },
 
         // not a promise, should for sure be public 
         getPlayer : function(effects) {
@@ -65,7 +56,6 @@ var initializeAmen = function(context) {
             }
             effects[i].connect(context.destination);
 
-            // so it looks like the style is for each top-level function to declare it's own sub-functions?
             function queuePlay(when, q) {
                 audioGain.gain.value = 1;
                 var theTime = context.currentTime;
@@ -192,7 +182,17 @@ var initializeAmen = function(context) {
     // We can make error() call error, I tell you what
     
     // HELPERS FOR LOADING AUDIO
-    // Another promise. Does this have to be declared in prepareTrack?
+
+    // basically a promise
+    function prepareTrack(track, trackURL, callback) {
+        if (track.status == 'complete') {
+            preprocessTrack(track);
+            fetchAudio(trackURL, track, callback);
+        } else {
+            track.status = 'error: incomplete analysis';
+        }
+    }
+
     // Once we promise this up, we can take the callback out!
     function fetchAudio(url, track, callback) {
         var request = new XMLHttpRequest();
@@ -230,7 +230,6 @@ var initializeAmen = function(context) {
         request.send();
     } // end fetchAudio
 
-    // not a promise - again, does this need to be created in prepareTrack?
     function preprocessTrack(track) {
         trace('preprocessTrack');
         // Eventually we will have sections, bars, and maybe tatums here
@@ -278,11 +277,9 @@ var initializeAmen = function(context) {
         }
     } // end preprocessTrack
 
-    // ah, these are global-to-this-module, but are also privte!
-    // yeah, let's move shit here, I think?
-    // is it too too tacky to move all child functions of LOADING here, 
-    // and then put a BIG COMMENT and move all child functions of the playe here?
-    // I think this is fine, I will do it tomorrow
+
+    // HELPERS FOR CREATING THE PLAYER AND PLAYING AUDIO
+
 
    // used in Player
     function isQuantum(a) {
@@ -298,6 +295,9 @@ var initializeAmen = function(context) {
     function isSilence(a) {
         return 'isSilence' in a;
     }
+
+
+    // HELPERS FOR CONSOLE LOGGING
 
     function trace(text) {
         console.log(text);
