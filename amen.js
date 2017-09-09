@@ -42,47 +42,10 @@ var initializeAmen = function(context) {
         prepareTrack : function(track, trackURL, callback) {
             if (track.status == 'complete') {
                 preprocessTrack(track);
-                fetchAudio(trackURL);
+                fetchAudio(trackURL, track, callback);
             } else {
                 track.status = 'error: incomplete analysis';
             }
-
-            // Another promise. Does this have to be declared in prepareTrack?
-            function fetchAudio(url) {
-                var request = new XMLHttpRequest();
-                trace('fetching audio ' + url);
-                track.buffer = null;
-                request.open('GET', url, true);
-                request.responseType = 'arraybuffer';
-                this.request = request;
-
-                request.onload = function() {
-                    trace('audio loading ...');
-                    context.decodeAudioData(request.response,
-                        function(buffer) {      // completed function
-                            track.buffer = buffer;
-                            track.status = 'ok';
-                            callback(track, 100);
-                        },
-                        function(e) { // error function
-                            track.status = 'error: loading audio';
-                            console.log('audio error', e);
-                        }
-                    );
-                };
-
-                request.onerror = function(e) {
-                    trace('error loading loaded', e);
-                    track.status = 'error: loading audio';
-                };
-
-                request.onprogress = function(e) {
-                    var percent = Math.round(e.loaded * 100 / e.total);
-                    callback(track, percent);
-                };
-
-                request.send();
-            } // end fetchAudio
 
             // not a promise - again, does this need to be created in prepareTrack?
             function preprocessTrack(track) {
@@ -276,6 +239,45 @@ var initializeAmen = function(context) {
     // These ones are small and easy to test - but where are they used / where should they go?
     // Let's move these small ones into Player, but make trace / error global?
     // We can make error() call error, I tell you what
+    
+    // HELPERS FOR LOADING AUDIO
+    // Another promise. Does this have to be declared in prepareTrack?
+    // Once we promise this up, we can take the callback out!
+    function fetchAudio(url, track, callback) {
+        var request = new XMLHttpRequest();
+        trace('fetching audio ' + url);
+        track.buffer = null;
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
+        this.request = request;
+
+        request.onload = function() {
+            trace('audio loading ...');
+            context.decodeAudioData(request.response,
+                function(buffer) {      // completed function
+                    track.buffer = buffer;
+                    track.status = 'ok';
+                    callback(track, 100);
+                },
+                function(e) { // error function
+                    track.status = 'error: loading audio';
+                    console.log('audio error', e);
+                }
+            );
+        };
+
+        request.onerror = function(e) {
+            trace('error loading loaded', e);
+            track.status = 'error: loading audio';
+        };
+
+        request.onprogress = function(e) {
+            var percent = Math.round(e.loaded * 100 / e.total);
+            callback(track, percent);
+        };
+
+        request.send();
+    } // end fetchAudio
 
 
     // ah, these are global-to-this-module, but are also privte!
