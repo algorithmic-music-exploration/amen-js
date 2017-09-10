@@ -49,11 +49,30 @@ test('amenPlayer plays from an array and advances time', () => {
     var injectedBufferSrc = res.injectedBufferSrc
     var playbackArray = [buffer]
 
-    res = player.play(0, playbackArray);
-    expect(res).toEqual(0.5);
+    res = player.play(1, playbackArray);
+    expect(res).toEqual(1.5);
 
-    context.$processTo('00:00.000');
+    context.$processTo('00:01.000');
     expect(injectedBufferSrc.$state).toEqual('PLAYING');
-    context.$processTo('00:00.501');
+    context.$processTo('00:01.501');
+    expect(injectedBufferSrc.$state).toEqual('FINISHED');
+});
+
+test('amenPlayer plays from an AudioQuantum and advances time', () => {
+    res = setupBuffers(context)
+    var buffer = res.buffer;
+    var injectedBufferSrc = res.injectedBufferSrc
+    var playbackQuantum = {
+                           'start': 0,
+                           'duration': 0.5,
+                           'track': {'buffer': buffer}
+                           }
+
+    res = player.play(2, playbackQuantum);
+    expect(res).toEqual(2.5);
+
+    context.$processTo('00:02.000');
+    expect(injectedBufferSrc.$state).toEqual('PLAYING');
+    context.$processTo('00:02.501');
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
 });
