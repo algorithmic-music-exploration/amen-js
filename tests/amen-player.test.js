@@ -1,6 +1,7 @@
 require('web-audio-test-api');
 amenPlayer = require('../amen-player');
 
+jest.useFakeTimers();
 var context;
 var player;
 
@@ -117,4 +118,22 @@ test('amenPlayer stops playback', () => {
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
     context.$processTo('00:00.501');
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
+});
+
+
+test('amenPlayer triggers both callback functions', () => {
+    res = setupBuffers(context)
+    var buffer = res.buffer;
+    var injectedBufferSrc = res.injectedBufferSrc
+    var mockOnPlayback = jest.fn();
+    var mockAfterPlayback = jest.fn();
+    player.addOnPlayCallback(mockOnPlayback);
+    player.addAfterPlayCallback(mockAfterPlayback);
+    res = player.play(0, buffer);
+
+    context.$processTo('00:00.501');
+    jest.runAllTimers();
+
+    expect(mockOnPlayback.mock.calls.length).toBe(1);
+    expect(mockAfterPlayback.mock.calls.length).toBe(1);
 });
