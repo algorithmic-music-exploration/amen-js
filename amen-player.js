@@ -64,34 +64,16 @@ var amenPlayer = function(context, effects) {
         },
     }; // end player declaration
 
-    function isQuantum(a) {
-        return 'start' in a && 'duration' in a;
-    }
 
-    function isAudioBuffer(a) {
-        return 'getChannelData' in a;
-    }
-
-    function isSilence(a) {
-        return 'isSilence' in a;
-    }
-
-    // private ugly thing for actually doing playback
+    // Master function for doing playback
     function queuePlay(when, q) {
         audioGain.gain.value = 1;
 
         if (isAudioBuffer(q) || isQuantum(q)) {
             playBuffer(when, q);
-
-            // Ah, this was for playing two things at once, for cowbell.js
             if ('syncBuffer' in q) {
-                var audioSyncSource = context.createBufferSource();
-                audioSyncSource.buffer = q.syncBuffer;
-                audioSyncSource.connect(audioGain);
-                currentlyQueued.push(audioSyncSource);
-                audioSyncSource.start(when);
+                playSyncBuffer(when, q);
             }
-
             processCallbacks(when, q);
             return when + parseFloat(q.duration);
 
@@ -104,6 +86,7 @@ var amenPlayer = function(context, effects) {
                 when = queuePlay(when, q[i]);
             }
             return when;
+
         } else if (isSilence(q)) {
             return (when + parseFloat(q.duration));
         }
@@ -113,6 +96,7 @@ var amenPlayer = function(context, effects) {
         }
     } // end queuePlay
 
+    // Various helper functions for queuePlay
     function processCallbacks(when, q) {
         var theTime = context.currentTime;
         if (onPlayCallback != null) {
@@ -126,17 +110,40 @@ var amenPlayer = function(context, effects) {
         }
     }
 
-    function playBuffer(when, q) {
+    function loadBuffer(buffer) {
         var audioSource = context.createBufferSource();
         audioSource.connect(audioGain);
         currentlyQueued.push(audioSource);
+        audioSource.buffer = buffer;
+        return audioSource;
+    }
+
+    function playBuffer(when, q) {
+        var audioSource;
         if (isQuantum(q)) {
-            audioSource.buffer = q.track.buffer;
+            audioSource = loadBuffer(q.track.buffer);
             audioSource.start(when, q.start, q.duration);
         } else {
-            audioSource.buffer = q;
+            audioSource = loadBuffer(q);
             audioSource.start(when);
         }
+    }
+
+    function playSyncBuffer(when, q) {
+        var audioSource = loadBuffer(q.syncBuffer);
+        audioSource.start(when);
+    }
+
+    function isQuantum(a) {
+        return 'start' in a && 'duration' in a;
+    }
+
+    function isAudioBuffer(a) {
+        return 'getChannelData' in a;
+    }
+
+    function isSilence(a) {
+        return 'isSilence' in a;
     }
 
 
