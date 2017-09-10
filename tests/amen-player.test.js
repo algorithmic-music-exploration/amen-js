@@ -111,10 +111,10 @@ test('amenPlayer stops playback', () => {
     var buffer = res.buffer;
     var injectedBufferSrc = res.injectedBufferSrc
     player.play(0, buffer);
-    played.stop();
+    player.stop();
 
     context.$processTo('00:00.000');
-    expect(injectedBufferSrc.$state).toEqual('PLAYING');
+    expect(injectedBufferSrc.$state).toEqual('FINISHED');
     context.$processTo('00:00.501');
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
 });
