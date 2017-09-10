@@ -105,3 +105,16 @@ test('amenPlayer queues playback', () => {
     context.$processTo('00:00.501');
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
 });
+
+test('amenPlayer stops playback', () => {
+    res = setupBuffers(context)
+    var buffer = res.buffer;
+    var injectedBufferSrc = res.injectedBufferSrc
+    player.play(0, buffer);
+    played.stop();
+
+    context.$processTo('00:00.000');
+    expect(injectedBufferSrc.$state).toEqual('PLAYING');
+    context.$processTo('00:00.501');
+    expect(injectedBufferSrc.$state).toEqual('FINISHED');
+});
