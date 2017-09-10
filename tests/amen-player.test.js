@@ -76,3 +76,19 @@ test('amenPlayer plays from an AudioQuantum and advances time', () => {
     context.$processTo('00:02.501');
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
 });
+
+test('amenPlayer ignores silence, but advances time', () => {
+    res = setupBuffers(context)
+    var buffer = res.buffer;
+    var injectedBufferSrc = res.injectedBufferSrc
+    var playbackQuantum = {
+                           'duration': 0.5,
+                           'isSilence': true,
+                           }
+
+    res = player.play(3, playbackQuantum);
+    expect(res).toEqual(3.5);
+
+    context.$processTo('00:03.000');
+    expect(injectedBufferSrc.$state).toEqual('UNSCHEDULED');
+});
