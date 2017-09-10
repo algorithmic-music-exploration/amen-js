@@ -30,6 +30,7 @@ var amenPlayer = function(context, effects) {
             afterPlayCallback = callback;
         },
 
+        // Do I need both this and play?  I sort of thing so ...
         queue: function(q) {
             var now = context.currentTime;
             if (now > queueTime) {
@@ -78,26 +79,20 @@ var amenPlayer = function(context, effects) {
     // private ugly thing for actually doing playback
     function queuePlay(when, q) {
         audioGain.gain.value = 1;
-        var theTime = context.currentTime;
-        // why in heaven's name do I have three ways of playing?
-        // I am sure there was a good reason for this, but man
-        if (isAudioBuffer(q)) {
-            var audioSource = context.createBufferSource();
-            audioSource.buffer = q;
-            audioSource.connect(audioGain);
-            currentlyQueued.push(audioSource);
-            audioSource.start(when);
 
-            if (onPlayCallback != null) {
-                theTime = (when - context.currentTime) *  1000;
-                currentTriggers.push(setTimeout(onPlayCallback, theTime));
+        if (isAudioBuffer(q) || isQuantum(q)) {
+            playBuffer(when, q);
+
+            // Ah, this was for playing two things at once, for cowbell.js
+            if ('syncBuffer' in q) {
+                var audioSyncSource = context.createBufferSource();
+                audioSyncSource.buffer = q.syncBuffer;
+                audioSyncSource.connect(audioGain);
+                currentlyQueued.push(audioSyncSource);
+                audioSyncSource.start(when);
             }
 
-            if (afterPlayCallback != null) {
-                theTime = (when - context.currentTime + parseFloat(q.duration)) *  1000;
-                currentTriggers.push(setTimeout(afterPlayCallback, theTime));
-            }
-
+            processCallbacks(when, q);
             return when + parseFloat(q.duration);
 
         } else if (Array.isArray(q)) {
@@ -109,41 +104,41 @@ var amenPlayer = function(context, effects) {
                 when = queuePlay(when, q[i]);
             }
             return when;
-        } else if (isQuantum(q)) {
-            var audioQuantumSource = context.createBufferSource();
-            audioQuantumSource.buffer = q.track.buffer;
-            audioQuantumSource.connect(audioGain);
-            q.audioQuantumSource = audioQuantumSource;
-            currentlyQueued.push(audioQuantumSource);
-            audioQuantumSource.start(when, q.start, q.duration);
-
-            // I need to clean up all these ifs
-            if ('syncBuffer' in q) {
-                var audioSyncSource = context.createBufferSource();
-                audioSyncSource.buffer = q.syncBuffer;
-                audioSyncSource.connect(audioGain);
-                currentlyQueued.push(audioSyncSource);
-                audioSyncSource.start(when);
-            }
-
-            if (onPlayCallback != null) {
-                theTime = (when - context.currentTime) *  1000;
-                currentTriggers.push(setTimeout(onPlayCallback, theTime));
-            }
-            if (afterPlayCallback != null) {
-                theTime = (when - context.currentTime + parseFloat(q.duration)) *  1000;
-                currentTriggers.push(setTimeout(afterPlayCallback, theTime));
-            }
-            return (when + parseFloat(q.duration));
-        }
-        else if (isSilence(q)) {
+        } else if (isSilence(q)) {
             return (when + parseFloat(q.duration));
         }
         else {
-            console.log('cannot play ' + q);
+            console.error('cannot play ' + q);
             return when;
         }
-    } // end play
+    } // end queuePlay
+
+    function processCallbacks(when, q) {
+        var theTime = context.currentTime;
+        if (onPlayCallback != null) {
+            theTime = (when - context.currentTime) *  1000;
+            currentTriggers.push(setTimeout(onPlayCallback, theTime));
+        }
+
+        if (afterPlayCallback != null) {
+            theTime = (when - context.currentTime + parseFloat(q.duration)) *  1000;
+            currentTriggers.push(setTimeout(afterPlayCallback, theTime));
+        }
+    }
+
+    function playBuffer(when, q) {
+        var audioSource = context.createBufferSource();
+        audioSource.connect(audioGain);
+        currentlyQueued.push(audioSource);
+        if (isQuantum(q)) {
+            audioSource.buffer = q.track.buffer;
+            audioSource.start(when, q.start, q.duration);
+        } else {
+            audioSource.buffer = q;
+            audioSource.start(when);
+        }
+    }
+
 
     return player;
 };

@@ -120,7 +120,6 @@ test('amenPlayer stops playback', () => {
     expect(injectedBufferSrc.$state).toEqual('FINISHED');
 });
 
-
 test('amenPlayer triggers both callback functions', () => {
     res = setupBuffers(context)
     var buffer = res.buffer;
