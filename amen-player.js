@@ -1,10 +1,11 @@
 var amenPlayer = function(context, effects) {
     var queueTime = 0;
-    var audioGain = context.createGain();
     var currentlyQueued = new Array();
     var onPlayCallback = null;
     var afterPlayCallback = null;
     var currentTriggers = new Array();
+
+    var audioGain = context.createGain();
     audioGain.gain.value = 1;
 
     // Connect effects
