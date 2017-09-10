@@ -8,6 +8,7 @@
 <body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="amen.js"></script>
+<script type="text/javascript" src="amen-player.js"></script>
 <script type="text/javascript">
 
 var context = new AudioContext();
@@ -15,7 +16,7 @@ var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d
 var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
 
 var amen = initializeAmen(context, $);
-var player = amen.getPlayer();
+var player = amenPlayer();
 
 amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
   console.log(percent);

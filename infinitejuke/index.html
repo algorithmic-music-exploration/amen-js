@@ -5,6 +5,7 @@
     <script src="raphael-min.js" type="text/javascript" charset="utf-8"></script>
 
     <script type="text/javascript" src="../amen.js"></script>
+    <script type="text/javascript" src="../amen-player.js"></script>
     <script type="text/javascript" src="../amen-to-remix.js"></script>
     <script type="text/javascript" src="watch.js"></script>
     <script type="text/javascript" src="underscore-min.js"></script>
@@ -183,7 +184,7 @@
 
     function stop() {
         player.stop();
-        player = amen.getPlayer();
+        player = amenPlayer(context);
     }
 
     // Chain of functions for uploading:  upload, poll for analysis, do the work.
@@ -243,7 +244,7 @@
     console.log("do the remix!");
     context = getAudioContext();
     var amen = initializeAmen(context, $);
-    player = amen.getPlayer();
+    player = amenPlayer(context);
     amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
       console.log(percent);
       if (t.status = "ok" && percent == 100) {
