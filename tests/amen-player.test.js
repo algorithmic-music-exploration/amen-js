@@ -92,3 +92,16 @@ test('amenPlayer ignores silence, but advances time', () => {
     context.$processTo('00:03.000');
     expect(injectedBufferSrc.$state).toEqual('UNSCHEDULED');
 });
+
+
+test('amenPlayer queues playback', () => {
+    res = setupBuffers(context)
+    var buffer = res.buffer;
+    var injectedBufferSrc = res.injectedBufferSrc
+    player.queue(buffer);
+
+    context.$processTo('00:00.000');
+    expect(injectedBufferSrc.$state).toEqual('PLAYING');
+    context.$processTo('00:00.501');
+    expect(injectedBufferSrc.$state).toEqual('FINISHED');
+});
