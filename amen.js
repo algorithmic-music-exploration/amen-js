@@ -1,5 +1,7 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
+
+// !! Need to fix rejects, clean up the track.status thing, and look at percent loading.
 var initializeAmen = function(context) {
     var amen = {
         // This function can probably just become a Promise?
