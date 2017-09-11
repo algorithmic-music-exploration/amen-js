@@ -6,6 +6,14 @@ var initializeAmen = function(context) {
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
 
+
+            var  myFirstPromise = new Promise((resolve, reject) => {
+              setTimeout(function(){
+                resolve("Success!"); // Yay! Everything went well!
+              }, 250);
+            }
+
+
             var request = new XMLHttpRequest();
             request.open('GET', analysisURL, true);
             request.onload = function() {
