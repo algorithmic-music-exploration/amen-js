@@ -6,34 +6,78 @@ var initializeAmen = function(context) {
         loadTrack: function(analysisURL, trackURL) {
             var track = new Object();
 
-            return new Promise((resolve, reject) => {
-                var request = new XMLHttpRequest();
-                request.open('GET', analysisURL, true);
-                request.onload = function() {
-                    if (request.status >= 200 && request.status < 400) {
-                        // Success!
-                        track.analysis = JSON.parse(request.responseText);
-                        // TODO - figure out why our JSON is double-encoded?
-                        track.analysis = JSON.parse(track.analysis);
-                        track.status = 'complete';
-                        fetchAudio(trackURL, track);
-                        preprocessTrack(track);
-                        resolve(track);
-                    } else {
-                        console.error('Analysis could not be loaded');
-                        track.status = 'error: loading analysis';
-                        reject('nope');
-                    }
-                };
-                request.onerror = function() {
+            return fetchAnalysis(analysisURL, trackURL, track)
+            .then(fetchAudio)
+            .then(preprocessTrack);
+
+        },
+    };
+
+    function fetchAnalysis(analysisURL, trackURL, track) {
+        return new Promise((resolve, reject) => {
+            var request = new XMLHttpRequest();
+            request.open('GET', analysisURL, true);
+            request.onload = function() {
+                if (request.status >= 200 && request.status < 400) {
+                    // Success!
+                    track.analysis = JSON.parse(request.responseText);
+                    // TODO - figure out why our JSON is double-encoded?
+                    track.analysis = JSON.parse(track.analysis);
+                    track.status = 'complete';
+                    var trackInfo = [trackURL, track];
+                    resolve(trackInfo);
+                } else {
                     console.error('Analysis could not be loaded');
                     track.status = 'error: loading analysis';
                     reject('nope');
-                };
-                request.send();
-            });
-        }
-    };
+                }
+            };
+            request.onerror = function() {
+                console.error('Analysis could not be loaded');
+                track.status = 'error: loading analysis';
+                reject('nope');
+            };
+            request.send();
+        });
+    }
+
+    // Once we promise this up, we can take the callback out!
+    function fetchAudio(trackInfo) {
+        return new Promise((resolve, reject) => {
+            var trackURL = trackInfo[0];
+            var track = trackInfo[1];
+
+            var request = new XMLHttpRequest();
+            track.buffer = null;
+            request.open('GET', trackURL, true);
+            request.responseType = 'arraybuffer';
+            this.request = request;
+
+            request.onload = function() {
+                context.decodeAudioData(request.response,
+                    function(buffer) {      // completed function
+                        track.buffer = buffer;
+                        track.status = 'ok';
+                        resolve(track);
+                    },
+                    function(error) {
+                        console.error('Audio could not be loaded', error);
+                        track.status = 'error: loading audio';
+                        reject('nope');
+                    }
+                );
+            };
+
+            request.onerror = function(error) {
+                console.error('Audio could not be loaded', error);
+                track.status = 'error: loading audio';
+                reject('nope');
+            };
+            // we cut request.onprogress - we should maybe bring it back?  How does it work with promises tho?
+            request.send();
+        });
+    } // end fetchAudio
+
 
     function preprocessTrack(track) {
         // Eventually we will have sections, bars, and maybe tatums here
@@ -78,38 +122,8 @@ var initializeAmen = function(context) {
                 }
             }
         }
+        return track;
     } // end preprocessTrack
-
-    // Once we promise this up, we can take the callback out!
-    function fetchAudio(url, track) {
-        var request = new XMLHttpRequest();
-        track.buffer = null;
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-        this.request = request;
-
-        request.onload = function() {
-            context.decodeAudioData(request.response,
-                function(buffer) {      // completed function
-                    track.buffer = buffer;
-                    track.status = 'ok';
-                },
-                function(error) {
-                    console.error('Audio could not be loaded', error);
-                    track.status = 'error: loading audio';
-                }
-            );
-        };
-
-        request.onerror = function(error) {
-            console.error('Audio could not be loaded', error);
-            track.status = 'error: loading audio';
-        };
-
-        // we cut request.onprogress - we should maybe bring it back?  How does it work with promises tho?
-
-        request.send();
-    } // end fetchAudio
 
     return amen;
 };
