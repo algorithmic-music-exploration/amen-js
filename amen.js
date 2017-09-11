@@ -1,19 +1,8 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
-// Need to handle proper packaging for browser stuff, too!
 var initializeAmen = function(context) {
-
-    // OK, so there's a few choices here:
-    // I can nest the needed functions in each public function
-    // I can make other files
-    // I can make other objects in this file.
-    // I also have this semi-global need for the audio context, hmm.
-        // I could pass it into getPlayer, as well, hmmmmm.
-
-    // oh wow, need to make all of this speak Promises
     var amen = {
         // This function can probably just become a Promise?
-        // shoudl be public!
         loadTrack: function(analysisURL, trackURL, callback) {
             var track = new Object();
 
@@ -38,9 +27,6 @@ var initializeAmen = function(context) {
         }
     };
 
-
-    // HELPERS FOR LOADING AUDIO
-    // basically a promise
     function prepareTrack(track, trackURL, callback) {
         if (track.status == 'complete') {
             preprocessTrack(track);
@@ -50,51 +36,13 @@ var initializeAmen = function(context) {
         }
     }
 
-    // Once we promise this up, we can take the callback out!
-    function fetchAudio(url, track, callback) {
-        var request = new XMLHttpRequest();
-        console.log('fetching audio ' + url);
-        track.buffer = null;
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-        this.request = request;
-
-        request.onload = function() {
-            console.log('audio loading ...');
-            context.decodeAudioData(request.response,
-                function(buffer) {      // completed function
-                    track.buffer = buffer;
-                    track.status = 'ok';
-                    callback(track, 100);
-                },
-                function(e) { // error function
-                    track.status = 'error: loading audio';
-                    console.log('audio error', e);
-                }
-            );
-        };
-
-        request.onerror = function(e) {
-            console.log('error loading loaded', e);
-            track.status = 'error: loading audio';
-        };
-
-        request.onprogress = function(e) {
-            var percent = Math.round(e.loaded * 100 / e.total);
-            callback(track, percent);
-        };
-
-        request.send();
-    } // end fetchAudio
 
     function preprocessTrack(track) {
-        console.log('preprocessTrack');
         // Eventually we will have sections, bars, and maybe tatums here
         var types = ['segments', 'beats'];
 
         for (var i in types) {
             var type = types[i];
-            console.log('preprocessTrack ' + type);
             // This j might need to be a regular for loop ...
             for (var j in track.analysis[type]) {
                 var qlist = track.analysis[type];
@@ -133,6 +81,41 @@ var initializeAmen = function(context) {
             }
         }
     } // end preprocessTrack
+
+    // Once we promise this up, we can take the callback out!
+    function fetchAudio(url, track, callback) {
+        var request = new XMLHttpRequest();
+        track.buffer = null;
+        request.open('GET', url, true);
+        request.responseType = 'arraybuffer';
+        this.request = request;
+
+        request.onload = function() {
+            context.decodeAudioData(request.response,
+                function(buffer) {      // completed function
+                    track.buffer = buffer;
+                    track.status = 'ok';
+                    callback(track, 100);
+                },
+                function(error) {
+                    console.error('Audio could not be loaded', error);
+                    track.status = 'error: loading audio';
+                }
+            );
+        };
+
+        request.onerror = function(error) {
+            console.error('Audio could not be loaded', error);
+            track.status = 'error: loading audio';
+        };
+
+        request.onprogress = function(e) {
+            var percent = Math.round(e.loaded * 100 / e.total);
+            callback(track, percent);
+        };
+
+        request.send();
+    } // end fetchAudio
 
     return amen;
 };
