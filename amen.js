@@ -1,100 +1,81 @@
 // amen.js
 // Heavily based on Paul Lamere's Infinite Jukebox and remix.js by The Echo Nest.  Big hugs.
-// Need to handle proper packaging for browser stuff, too!
 var initializeAmen = function(context) {
-
-    // OK, so there's a few choices here:
-    // I can nest the needed functions in each public function
-    // I can make other files
-    // I can make other objects in this file.
-    // I also have this semi-global need for the audio context, hmm.
-        // I could pass it into getPlayer, as well, hmmmmm.
-
-    // oh wow, need to make all of this speak Promises
     var amen = {
-        // This function can probably just become a Promise?
-        // shoudl be public!
-        loadTrack: function(analysisURL, trackURL, callback) {
+        loadTrack: function(analysisURL, trackURL) {
             var track = new Object();
+            return fetchAnalysis(analysisURL, trackURL, track)
+            .then(fetchAudio)
+            .then(preprocessTrack);
+        },
+    };
 
+    function fetchAnalysis(analysisURL, trackURL, track) {
+        return new Promise((resolve, reject) => {
             var request = new XMLHttpRequest();
+            var errorMsg = 'error: analysis could not be loaded';
             request.open('GET', analysisURL, true);
             request.onload = function() {
                 if (request.status >= 200 && request.status < 400) {
-                    // Success!
                     track.analysis = JSON.parse(request.responseText);
-                    // TODO - figure out why our JSON is double-encoded?
                     track.analysis = JSON.parse(track.analysis);
-                    track.status = 'complete';
-                    prepareTrack(track, trackURL, callback);
+                    track.status = 'analysis loaded';
+                    var trackInfo = [trackURL, track];
+                    resolve(trackInfo);
                 } else {
-                    // We reached our target server, but it returned an error
+                    console.error(errorMsg);
+                    track.status = errorMsg;
+                    reject(errorMsg);
                 }
             };
             request.onerror = function() {
-                // There was a connection error of some sort
+                console.error(errorMsg);
+                track.status = errorMsg;
+                reject(errorMsg);
             };
             request.send();
-        }
-    };
-
-
-    // HELPERS FOR LOADING AUDIO
-    // basically a promise
-    function prepareTrack(track, trackURL, callback) {
-        if (track.status == 'complete') {
-            preprocessTrack(track);
-            fetchAudio(trackURL, track, callback);
-        } else {
-            track.status = 'error: incomplete analysis';
-        }
+        });
     }
 
-    // Once we promise this up, we can take the callback out!
-    function fetchAudio(url, track, callback) {
-        var request = new XMLHttpRequest();
-        console.log('fetching audio ' + url);
-        track.buffer = null;
-        request.open('GET', url, true);
-        request.responseType = 'arraybuffer';
-        this.request = request;
+    function fetchAudio(trackInfo) {
+        return new Promise((resolve, reject) => {
+            var trackURL = trackInfo[0];
+            var track = trackInfo[1];
+            track.buffer = null;
 
-        request.onload = function() {
-            console.log('audio loading ...');
-            context.decodeAudioData(request.response,
-                function(buffer) {      // completed function
-                    track.buffer = buffer;
-                    track.status = 'ok';
-                    callback(track, 100);
-                },
-                function(e) { // error function
-                    track.status = 'error: loading audio';
-                    console.log('audio error', e);
-                }
-            );
-        };
-
-        request.onerror = function(e) {
-            console.log('error loading loaded', e);
-            track.status = 'error: loading audio';
-        };
-
-        request.onprogress = function(e) {
-            var percent = Math.round(e.loaded * 100 / e.total);
-            callback(track, percent);
-        };
-
-        request.send();
-    } // end fetchAudio
+            var request = new XMLHttpRequest();
+            var errorMsg = 'error: audio could not be loaded';
+            request.open('GET', trackURL, true);
+            request.responseType = 'arraybuffer';
+            request.onload = function() {
+                context.decodeAudioData(request.response,
+                    function(buffer) {      // completed function
+                        track.buffer = buffer;
+                        track.status = 'complete';
+                        resolve(track);
+                    },
+                    function(error) {
+                        console.error(errorMsg, error);
+                        track.status = errorMsg;
+                        reject(errorMsg);
+                    }
+                );
+            };
+            request.onerror = function(error) {
+                console.error(errorMsg, error);
+                track.status = errorMsg;
+                reject(errorMsg);
+            };
+            request.send();
+        });
+    }
 
     function preprocessTrack(track) {
-        console.log('preprocessTrack');
         // Eventually we will have sections, bars, and maybe tatums here
         var types = ['segments', 'beats'];
 
         for (var i in types) {
             var type = types[i];
-            console.log('preprocessTrack ' + type);
             // This j might need to be a regular for loop ...
             for (var j in track.analysis[type]) {
                 var qlist = track.analysis[type];
@@ -132,7 +113,8 @@ var initializeAmen = function(context) {
                 }
             }
         }
-    } // end preprocessTrack
+        return track;
+    }
 
     return amen;
 };

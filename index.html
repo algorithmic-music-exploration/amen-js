@@ -16,11 +16,10 @@ var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d
 var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
 
 var amen = initializeAmen(context, $);
-var player = amenPlayer();
+var player = amenPlayer(context);
 
-amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
-  console.log(percent);
-  if (t.status = "ok" && percent == 100) {
+var remixFunction = function(t) {
+  if (t.status = "ok") {
     console.log("track has loaded");
     var out = []
     out.push(t.analysis.beats[4]);
@@ -31,8 +30,10 @@ amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
     out.push(t.analysis.beats[0]);
     player.play(0, out);
   }
+};
 
-});
+amen.loadTrack(analysisUrl, trackUrl).then(remixFunction);
+
 </script>
 
 Hello
