@@ -13,7 +13,7 @@ var initializeAmen = function(context) {
     function fetchAnalysis(analysisURL, trackURL, track) {
         return new Promise((resolve, reject) => {
             var request = new XMLHttpRequest();
-            var errorMsg = "error: analysis could not be loaded";
+            var errorMsg = 'error: analysis could not be loaded';
             request.open('GET', analysisURL, true);
             request.onload = function() {
                 if (request.status >= 200 && request.status < 400) {
@@ -24,13 +24,13 @@ var initializeAmen = function(context) {
                     resolve(trackInfo);
                 } else {
                     console.error(errorMsg);
-                    track.status = errorMsg
+                    track.status = errorMsg;
                     reject(errorMsg);
                 }
             };
             request.onerror = function() {
                 console.error(errorMsg);
-                track.status = errorMsg
+                track.status = errorMsg;
                 reject(errorMsg);
             };
             request.send();
@@ -44,7 +44,7 @@ var initializeAmen = function(context) {
             track.buffer = null;
 
             var request = new XMLHttpRequest();
-            var errorMsg = "error: audio could not be loaded";
+            var errorMsg = 'error: audio could not be loaded';
             request.open('GET', trackURL, true);
             request.responseType = 'arraybuffer';
             request.onload = function() {
@@ -56,14 +56,14 @@ var initializeAmen = function(context) {
                     },
                     function(error) {
                         console.error(errorMsg, error);
-                        track.status = errorMsg
+                        track.status = errorMsg;
                         reject(errorMsg);
                     }
                 );
             };
             request.onerror = function(error) {
                 console.error(errorMsg, error);
-                track.status = errorMsg
+                track.status = errorMsg;
                 reject(errorMsg);
             };
             request.send();
