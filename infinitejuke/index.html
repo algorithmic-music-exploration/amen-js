@@ -226,7 +226,6 @@
       type : 'HEAD',
       success : function(){
         fn(data);
-        console.log("200!");
       },
       error : function(){
         console.log("fail, waiting for ", time);
@@ -237,24 +236,22 @@
     });
   }
 
-  function doRemix(urls) {
-    var trackUrl = urls.audio;
-    var analysisUrl = urls.analysis;
-
-    console.log("do the remix!");
-    context = getAudioContext();
-    var amen = initializeAmen(context, $);
-    player = amenPlayer(context);
-    amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
-      console.log(percent);
-      if (t.status = "ok" && percent == 100) {
-        console.log("track has loaded");
+  function remixFunction(t) {
+      if (t.status = "complete") {
         track = t;
         track = amenToRemix(track);
         readyToPlay(t);
       }
+  }
 
-    });
+  function doRemix(urls) {
+    var trackUrl = urls.audio;
+    var analysisUrl = urls.analysis;
+    context = getAudioContext();
+    var amen = initializeAmen(context, $);
+    player = amenPlayer(context);
+
+    amen.loadTrack(analysisUrl, trackUrl).then(remixFunction);
   }
 
     // Tile functions
@@ -410,16 +407,12 @@
     }
 
     function drawVisualization() {
-        console.log("at the top of drawVisualization");
         if (track) {
             if (jukeboxData.currentThreshold == 0) {
-                console.log("dynamic NN call");
                 dynamicCalculateNearestNeighbors('beats');
             } else {
-                console.log("regular NN call");
                 calculateNearestNeighbors('beats', jukeboxData.currentThreshold);
             }
-            console.log("about to draw the panel");
             createTilePanel('beats');
         }
     }
@@ -758,7 +751,6 @@
         if (false) {
             for (var qi = 0; qi < quanta.length; qi++) {
                 var q = quanta[qi];
-                console.log(q.which, q.reach, Math.round(q.reach * 100 / quanta.length));
             }
         }
         // console.log('reachability map converged after ' + iter + ' iterations. total ' + quanta.length);
@@ -1003,8 +995,6 @@
                 total += 1;
             }
         }
-        console.log(histogram);
-        console.log('total branches', total);
     }
 
 
@@ -1703,7 +1693,6 @@
         var timeDiv = $("#time");
 
         function next() {
-            console.log("next");
             if (curTile == null || curTile == undefined) {
                 return jukeboxData.tiles[0];
             } else {
@@ -1855,7 +1844,6 @@
 
         // function that processes tiles / beats
         function process() {
-            console.log("in process");
             if (curTile !== null && curTile !== undefined) {
                 curTile.normal();
             }
@@ -1870,7 +1858,6 @@
                 }
 
                 if (curTile) {
-                    console.log("got a curTile");
                     console.log(ctime, nextTime);
                     var ctime = player.curTime();
                     // if we are consistently late we should shutdown
@@ -1885,7 +1872,6 @@
                         lateCounter = 0;
                     }
 
-                    console.log(curTile);
                     nextTime = player.play(nextTime, curTile.q);
 
                     if (fastMode) {
