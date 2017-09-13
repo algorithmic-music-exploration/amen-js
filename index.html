@@ -15,7 +15,7 @@ var context = new AudioContext();
 var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3";
 var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
 
-var amen = initializeAmen(context, $);
+var amen = initializeAmen(context);
 var player = amenPlayer(context);
 
 var remixFunction = function(t) {

@@ -49,7 +49,7 @@ var initializeAmen = function(context) {
             request.responseType = 'arraybuffer';
             request.onload = function() {
                 context.decodeAudioData(request.response,
-                    function(buffer) {      // completed function
+                    function(buffer) {
                         track.buffer = buffer;
                         track.status = 'complete';
                         resolve(track);
