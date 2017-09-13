@@ -79,5 +79,11 @@ test('amen loads the track and the audio', () => {
     });
 
     var a = amen.amen(context);
-    return a.loadTrack(analysisUrl, trackUrl)
+    return a.loadTrack(analysisUrl, trackUrl).then(track => {
+        expect(track.analysis.analysis.segments.length).toEqual(3);
+        expect(track.analysis.analysis.segments[0].centroid).toEqual(3000);
+        expect(track.analysis.analysis.segments[2].timbre[0]).toEqual(9);
+        expect(track.buffer.length).toEqual(1024);
+        expect(track.status).toEqual('complete');
+    });
 });
