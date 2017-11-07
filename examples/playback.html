@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-	<title>Amen Test</title>
+	  <title>Amen:  Playback Example</title>
 </head>
 
 <body>
@@ -20,12 +20,9 @@ var player = amenPlayer(context);
 
 var remixFunction = function(t) {
   if (t.status = "ok") {
-    console.log("track has loaded");
     var out = []
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
-    out.push(t.analysis.beats[4]);
+    out.push(t.analysis.beats[0]);
+    out.push(t.analysis.beats[0]);
     out.push(t.analysis.beats[0]);
     out.push(t.analysis.beats[0]);
     player.play(0, out);
@@ -35,8 +32,6 @@ var remixFunction = function(t) {
 amen.loadTrack(analysisUrl, trackUrl).then(remixFunction);
 
 </script>
-
-Hello
-
+Hello, this is a very simple example for amen.js.
 </body>
 </html>
