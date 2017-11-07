@@ -1,2 +1,3 @@
-infinitejuke/*.*
+examples/*.*
+examples/infinitejuke/*.*
 *.test.js
