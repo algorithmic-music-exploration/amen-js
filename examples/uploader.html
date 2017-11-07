@@ -18,9 +18,8 @@ var doRemix = function(urls) {
   var amen = initializeAmen(context, $);
   var player = amen.getPlayer();
 
-  amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
-    console.log(percent);
-    if (t.status = "ok" && percent == 100) {
+  var remixFunction = function(t) {
+    if (t.status = "ok") {
       var out = []
       out.push(t.analysis.beats[0]);
       out.push(t.analysis.beats[0]);
@@ -28,7 +27,8 @@ var doRemix = function(urls) {
       out.push(t.analysis.beats[0]);
       player.play(0, out);
     }
-  });
+  };
+  amen.loadTrack(analysisUrl, trackUrl).then(remixFunction);
 }
  
 var pollUrl = function(url, fn, data, time){
