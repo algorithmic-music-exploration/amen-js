@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-	<title>Amen Test</title>
+	  <title>Amen:  Upload Example</title>
 </head>
 
 <body>
@@ -21,12 +21,9 @@ var doRemix = function(urls) {
   amen.loadTrack(analysisUrl, trackUrl, function(t, percent) {
     console.log(percent);
     if (t.status = "ok" && percent == 100) {
-      console.log("track has loaded");
       var out = []
-      out.push(t.analysis.beats[4]);
-      out.push(t.analysis.beats[4]);
-      out.push(t.analysis.beats[4]);
-      out.push(t.analysis.beats[4]);
+      out.push(t.analysis.beats[0]);
+      out.push(t.analysis.beats[0]);
       out.push(t.analysis.beats[0]);
       out.push(t.analysis.beats[0]);
       player.play(0, out);
@@ -54,7 +51,6 @@ var pollUrl = function(url, fn, data, time){
 var responseHandler = function(res) {
   if (res.target.readyState === 4) {
     var urls = $.parseJSON(res.target.response);
-    console.log(urls);
     pollUrl(urls.audio, doRemix, urls, 200);
   } 
 }
@@ -64,10 +60,8 @@ var uploadFile = function() {
 	var file = input.files[0];
 	var fd = new FormData();
 	fd.append('file', file);
-	console.log("about to upload", fd);
-
 	var xhr = new XMLHttpRequest();
-	var url = 'http://ec2-35-163-115-205.us-west-2.compute.amazonaws.com/amen-test';
+	var url = '<YOUR_AMEN_SERVER_URL_HERE>';
 	xhr.open('POST', url, true);
 	xhr.onreadystatechange = responseHandler;
 	xhr.send(fd);
@@ -76,10 +70,12 @@ var uploadFile = function() {
 
 </script>
 
+
 <form enctype="multipart/form-data" action="/upload/image" method="post">
     <input id="file" type="file" />
 </form>
 <button onclick="uploadFile()">Upload!</button>
 
+Hello, this is an example of uploading for amen.js
 </body>
 </html>
