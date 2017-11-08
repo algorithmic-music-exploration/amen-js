@@ -20,9 +20,11 @@ Once your server is running, you just POST an audio file to it, and it returns t
 
 The most basic example is [playback.html](http://tide-pool.ca/amen-examples/playback.html).  It loads the analysis and audio from two static files on Amazon S3, and then plays the first four beats of the audio back.  It makes use of the charictaristic `amen.loadTrack(analysisUrl, trackUrl).then(remixFunction)` pattern - remixFunction is where the audio is manipulated and played back.
 
-[uploader.html](http://tide-pool.ca/amen-examples/uploader.html) is more complicated, and requires that you have your own instance of Amen Server running.  It uploads an audio file, then polls the two URLs that are returned to eventually load the audio and analysis, and then play back the first four beats.
+[uploader.html](http://tide-pool.ca/amen-examples/uploader.html) is more complicated, and requires that you have your own instance of Amen Server running.  It uploads an audio file, then polls the two URLs that are returned to eventually load the audio and analysis, and then play back the first four beats.  (Note that this version 
 
-The final example is _much_ more complicated - it's a fork of Paul Lamere's Infinite Jukebox, and is included here to show the levels of complexity that this sort of manipulation can do.  There's [a version](http://tide-pool.ca/amen-examples/infinitejuke/index-static.html) that Just Works, but for a single track, and [a version](http://tide-pool.ca/amen-examples/infinitejuke/index.html) where you can upload your own tracks.
+The final example is _much_ more complicated - it's a fork of Paul Lamere's Infinite Jukebox, and is included here to show the levels of complexity that this sort of manipulation can do.  Check it out [here!](http://tide-pool.ca/amen-examples/infinitejuke/index.html).
+
+(Note that the the latter two examples are _not actually uploading files to an instance of Amen Server_.  Instead, they're hijacking the response from a default server to use static files.  This is well commented in the code, don't worry!)
 
 # Thanks
 - Paul Lamere
