@@ -8,6 +8,7 @@
 <body>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript" src="amen.js"></script>
+<script type="text/javascript" src="amen-player.js"></script>
 <script type="text/javascript">
 
 var doRemix = function(urls) {
@@ -15,8 +16,8 @@ var doRemix = function(urls) {
   var trackUrl = urls.audio;
   var analysisUrl = urls.analysis;
 
-  var amen = initializeAmen(context, $);
-  var player = amen.getPlayer();
+  var amen = initializeAmen(context);
+  var player = amenPlayer(context)
 
   var remixFunction = function(t) {
     if (t.status = "ok") {
@@ -31,16 +32,14 @@ var doRemix = function(urls) {
   amen.loadTrack(analysisUrl, trackUrl).then(remixFunction);
 }
  
-var pollUrl = function(url, fn, data, time){
+var pollUrl = function(url, fn, data, time) {
   $.ajax({
     url : url,
     type : 'HEAD',
     success : function(){
       fn(data);
-      console.log("200!");
     },
     error : function(){
-      console.log("fail, waiting for ", time);
       setTimeout(function() {
         pollUrl(url, fn, data, time + time / 2);
       }, time);
@@ -51,6 +50,14 @@ var pollUrl = function(url, fn, data, time){
 var responseHandler = function(res) {
   if (res.target.readyState === 4) {
     var urls = $.parseJSON(res.target.response);
+
+    // EXAMPLE CODE:  These four lines hijack the response from the fake server, and use the below static URLs.
+    // Remove them when you get your server working!
+    var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3";
+    var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/d8380733ad36a65439d5d742c08face5-amen.mp3.analysis.json";
+    urls.audio = trackUrl;
+    urls.analysis = analysisUrl
+
     pollUrl(urls.audio, doRemix, urls, 200);
   } 
 }
@@ -61,11 +68,12 @@ var uploadFile = function() {
 	var fd = new FormData();
 	fd.append('file', file);
 	var xhr = new XMLHttpRequest();
-	var url = '<YOUR_AMEN_SERVER_URL_HERE>';
+  // EXAMPLE CODE:  Replace the httpbin URL with your own server endpoint!
+  var url = 'http://httpbin.org/post';
 	xhr.open('POST', url, true);
 	xhr.onreadystatechange = responseHandler;
 	xhr.send(fd);
-	console.log("req sent!");
+
 }
 
 </script>
@@ -75,7 +83,7 @@ var uploadFile = function() {
     <input id="file" type="file" />
 </form>
 <button onclick="uploadFile()">Upload!</button>
-
-Hello, this is an example of uploading for amen.js
+<br />
+Hello, this is an example of uploading for <a href="https://github.com/algorithmic-music-exploration/amen-js">amen.js.</a>.  It secretly hijacks the server response to return a static audio file, but you should be able to see how the code works regardless
 </body>
 </html>

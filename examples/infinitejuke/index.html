@@ -33,6 +33,8 @@
       <a href="http://twitter.com/plamere">Paul Lamere</a>.
       <br />
       Special thanks to <a href="https://eternal.abimon.org/jukebox_index.html">The Eternal Jukebox.</a>
+      <br />
+      (This is a demo version for <a href="https://github.com/algorithmic-music-exploration/amen-js">amen-js</a>, and will only ever play Carly Rae Jepsen, no matter what you upload.)
       </small>
     </p>
 </div>
@@ -194,33 +196,31 @@
       var file = input.files[0];
       var fd = new FormData();
       fd.append('file', file);
-      console.log("about to upload", fd);
 
       var xhr = new XMLHttpRequest();
-      //  YOUR URL HERE
+      // EXAMPLE CODE:  Replace the httpbin URL with your own server endpoint!
       var url = 'http://httpbin.org/post';
       xhr.open('POST', url, true);
       xhr.onreadystatechange = responseHandler;
       xhr.send(fd);
-      console.log("req sent!");
     }
 
     var responseHandler = function(res) {
       if (res.target.readyState === 4) {
         var urls = $.parseJSON(res.target.response);
 
-        // debug setup for urls.
+        // EXAMPLE CODE:  These four lines hijack the response from the fake server, and use the below static URLs.
+        // Remove them when you get your server working!
         var trackUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3"
         var analysisUrl = "https://s3-us-west-2.amazonaws.com/amen-data/b1b1ae55a64d9abac02b9e3e4b24daf8-CarleyRaeJepsenCutToTheFeeling.mp3.analysis.json";
         urls.audio = trackUrl;
         urls.analysis = analysisUrl;
-        console.log(urls);
 
         pollUrl(urls.audio, doRemix, urls, 200);
       } 
     }
 
-  var pollUrl = function(url, fn, data, time){
+  var pollUrl = function(url, fn, data, time) {
     $.ajax({
       url : url,
       type : 'HEAD',
@@ -1858,7 +1858,6 @@
                 }
 
                 if (curTile) {
-                    console.log(ctime, nextTime);
                     var ctime = player.curTime();
                     // if we are consistently late we should shutdown
                     if (ctime > nextTime) {
