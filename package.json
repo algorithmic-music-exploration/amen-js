@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/algorithmic-music-exploration/amen-js#readme",
   "devDependencies": {
-    "eslint": "^3.19.0",
+    "eslint": "^6.4.0",
     "jest": "^20.0.4",
     "web-audio-test-api": "^0.5.2",
     "xhr-mock": "^1.9.1"
